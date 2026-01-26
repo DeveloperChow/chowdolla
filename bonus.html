@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>ChowDolla Bonus</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+html,body{margin:0;height:100%;background:#05070d;color:#e9eef7;font-family:system-ui}
+*{-webkit-tap-highlight-color:transparent}
+
+:root{
+  --card:rgba(18,24,40,.75);
+  --line:rgba(255,255,255,.12);
+  --brand:#4f7cff;
+  --good:#22c55e;
+}
+
+#tinyBtn{
+  position:fixed;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;height:34px;
+  border-radius:12px;
+  background:linear-gradient(180deg,#6ea0ff,#4f7cff);
+  display:grid;place-items:center;
+  font-weight:1000;
+  box-shadow:0 10px 30px rgba(79,124,255,.4);
+  z-index:10;
+}
+
+#menu{
+  position:fixed;
+  right:-260px;
+  top:0;
+  width:260px;
+  height:100%;
+  background:linear-gradient(180deg,rgba(10,14,24,.98),rgba(6,8,14,.98));
+  border-left:1px solid var(--line);
+  transition:right .25s ease;
+  padding:16px;
+  z-index:9;
+}
+#menu.open{right:0}
+
+.card{
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  background:var(--card);
+  margin-bottom:14px;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(79,124,255,.25);
+  color:white;
+  font-weight:1000;
+  font-size:18px;
+}
+.btn.ready{
+  background:rgba(34,197,94,.25);
+  border-color:rgba(34,197,94,.5);
+}
+
+.small{font-size:12px;opacity:.7}
+.center{text-align:center}
+</style>
+</head>
+
+<body>
+
+<div id="tinyBtn" onclick="toggle()">+</div>
+
+<div id="menu">
+  <div class="card center">
+    <div style="font-weight:1000;letter-spacing:1px">BONUS MENU</div>
+    <div class="small">free timed rewards</div>
+  </div>
+
+  <div class="card center">
+    <div class="small">£5 bonus</div>
+    <button id="btn5" class="btn" onclick="claim5()">£5</button>
+    <div class="small" id="t5">loading…</div>
+  </div>
+
+  <div class="card center">
+    <div class="small">£10 bonus</div>
+    <button id="btn10" class="btn" onclick="claim10()">£10</button>
+    <div class="small" id="t10">loading…</div>
+  </div>
+</div>
+
+<script>
+/* firebase */
+firebase.initializeApp({
+  apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
+  authDomain: "chowdolla.firebaseapp.com",
+  projectId: "chowdolla",
+  storageBucket: "chowdolla.firebasestorage.app",
+  messagingSenderId: "976957921591",
+  appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
+});
+const db=firebase.firestore();
+
+/* config */
+const FIVE_MS = 5 * 60 * 1000;
+const TEN_MS  = 20 * 60 * 1000;
+const FIVE_CENTS = 500;
+const TEN_CENTS  = 1000;
+
+/* auth via localStorage from main app */
+const me = localStorage.getItem("chowdolla_user_v5");
+if(!me) alert("login in main app first");
+
+/* ui */
+function toggle(){
+  document.getElementById("menu").classList.toggle("open");
+}
+function mmss(ms){
+  if(ms<=0) return "READY";
+  const s=Math.ceil(ms/1000);
+  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+}
+
+let docData=null;
+db.collection("users").doc(me).onSnapshot(s=>{
+  docData=s.data();
+  tick();
+});
+
+function tick(){
+  if(!docData) return;
+  const n=Date.now();
+
+  const l5=(docData.next5||0)-n;
+  const l10=(docData.next10||0)-n;
+
+  document.getElementById("t5").textContent = mmss(l5);
+  document.getElementById("t10").textContent = mmss(l10);
+
+  document.getElementById("btn5").classList.toggle("ready",l5<=0);
+  document.getElementById("btn10").classList.toggle("ready",l10<=0);
+}
+setInterval(tick,1000);
+
+async function claim(refField,delay,cents){
+  const ref=db.collection("users").doc(me);
+  await db.runTransaction(async tx=>{
+    const s=await tx.get(ref);
+    const d=s.data();
+    const n=Date.now();
+    if((d[refField]||0)>n) throw "wait";
+    tx.update(ref,{
+      balanceCents:(d.balanceCents||0)+cents,
+      [refField]:n+delay
+    });
+  }).catch(()=>{});
+}
+
+function claim5(){claim("next5",FIVE_MS,FIVE_CENTS)}
+function claim10(){claim("next10",TEN_MS,TEN_CENTS)}
+</script>
+
+</body>
+</html>
