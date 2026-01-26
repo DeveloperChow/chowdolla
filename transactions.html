@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#0b0f14" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>CHOWDOLLA — Transactions</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+:root{
+  --bg:#0b0f14; --panel:#111827; --text:#e9eef7; --muted:rgba(233,238,247,.6);
+  --line:rgba(255,255,255,.08); --brand:#4f7cff; --good:#22c55e; --bad:#ef4444;
+  --shadow:0 18px 50px rgba(0,0,0,.45); --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 20% 0%, #141f34 0%, var(--bg) 60%),
+    radial-gradient(900px 600px at 90% 10%, #1c1236 0%, transparent 55%),
+    var(--bg);
+  overflow:hidden;
+}
+.safe{
+  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 14px);
+  height:100%; overflow:auto;
+}
+.top{
+  position:sticky; top:0; z-index:10;
+  padding:10px 0 14px;
+  background:linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.65), rgba(11,15,20,0));
+  backdrop-filter:blur(12px);
+}
+.brand{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:linear-gradient(180deg, rgba(17,24,39,.95), rgba(17,24,39,.62));
+  box-shadow:var(--shadow); padding:12px;
+}
+.left{display:flex; align-items:center; gap:10px}
+.logo{
+  width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%, #8aa9ff 0%, var(--brand) 35%, #2a45b0 100%);
+  box-shadow:0 12px 28px rgba(79,124,255,.22), inset 0 0 0 1px rgba(255,255,255,.14);
+  font-weight:900;
+}
+.t{font-weight:900; letter-spacing:2px; font-size:14px}
+.s{font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.pill{
+  font-size:11px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(0,0,0,.18);color:var(--muted);white-space:nowrap;
+}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin:12px 0;
+}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--muted)}
+.btn{
+  border:none;border-radius:16px;padding:12px 12px;font-size:15px;font-weight:900;
+  color:var(--text);background:rgba(79,124,255,.92);
+}
+.btnGhost{background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.tx{
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.16);
+  border-radius:16px;
+  padding:12px;
+  margin-top:10px;
+}
+.txTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.txWho{font-weight:900}
+.txMeta{font-size:12px;color:var(--muted);margin-top:4px}
+.amtIn{color:var(--good);font-weight:1000}
+.amtOut{color:var(--bad);font-weight:1000}
+.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+
+<body>
+<div class="safe">
+  <div class="top">
+    <div class="brand">
+      <div class="left">
+        <div class="logo">CD</div>
+        <div>
+          <div class="t">CHOWDOLLA</div>
+          <div class="s">TRANSACTIONS • FAKE BANK GAME</div>
+        </div>
+      </div>
+      <div class="pill" id="meTag">not logged</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <div style="font-weight:1000;letter-spacing:1px">your feed</div>
+        <div class="small">shows sends/receives (when your app logs txns)</div>
+      </div>
+      <button class="btnGhost btn" onclick="goBack()">back</button>
+    </div>
+    <div class="small" style="margin-top:10px" id="status">loading…</div>
+  </div>
+
+  <div class="card" id="listCard">
+    <div class="small muted">latest 50</div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+/* same firebase config you gave */
+const firebaseConfig = {
+  apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
+  authDomain: "chowdolla.firebaseapp.com",
+  projectId: "chowdolla",
+  storageBucket: "chowdolla.firebasestorage.app",
+  messagingSenderId: "976957921591",
+  appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const LS_KEY_USER = "chowdolla_user_v2";
+const LS_KEY_HASH = "chowdolla_hash_v2";
+
+const $ = (id)=>document.getElementById(id);
+let me = null;
+let hash = null;
+let unsub = null;
+
+function centsToCD(c){ return (Math.floor(Number(c||0))/100).toFixed(2); }
+function fmtTS(ts){
+  try{
+    const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : null);
+    if(!d) return "";
+    return d.toLocaleString("en-GB", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
+  }catch(e){ return ""; }
+}
+
+function goBack(){
+  // back to main app root
+  window.location.href = "./";
+}
+
+async function boot(){
+  me = (localStorage.getItem(LS_KEY_USER)||"").trim().toLowerCase();
+  hash = (localStorage.getItem(LS_KEY_HASH)||"").trim();
+  if(!me || !hash){
+    $("status").textContent = "not logged in. open the main app and login first";
+    return;
+  }
+
+  // verify session (matches stored pwHash)
+  const uSnap = await db.collection("users").doc(me).get().catch(()=>null);
+  if(!uSnap || !uSnap.exists){
+    $("status").textContent = "account not found. login again in main app";
+    return;
+  }
+  const u = uSnap.data();
+  if((u.pwHash||"") !== hash){
+    $("status").textContent = "session expired. login again in main app";
+    return;
+  }
+
+  $("meTag").textContent = "@"+me;
+  $("status").textContent = "live";
+
+  // We read transactions where participants includes me
+  // (requires you to log txns with participants: [from,to])
+  if(unsub) unsub();
+  unsub = db.collection("transactions")
+    .where("participants", "array-contains", me)
+    .orderBy("ts", "desc")
+    .limit(50)
+    .onSnapshot(snap=>{
+      const rows = [];
+      snap.forEach(doc=>{
+        const d = doc.data();
+        const from = d.from || "";
+        const to = d.to || "";
+        const amtC = Number(d.amountCents||0);
+        const incoming = (to === me);
+        rows.push({ id: doc.id, from, to, amtC, incoming, ts: d.ts, note: d.note || "" });
+      });
+      render(rows);
+    }, err=>{
+      console.error(err);
+      $("status").textContent = "can’t load (missing index or no txns yet)";
+    });
+}
+
+function render(rows){
+  const list = $("list");
+  list.innerHTML = "";
+  if(!rows.length){
+    list.innerHTML = `<div class="small">no transactions yet. make a transfer in the main app</div>`;
+    return;
+  }
+  for(const r of rows){
+    const who = r.incoming ? `from @${r.from}` : `to @${r.to}`;
+    const sign = r.incoming ? "+" : "-";
+    const cls = r.incoming ? "amtIn" : "amtOut";
+    const when = fmtTS(r.ts);
+    const note = r.note ? ` • ${r.note}` : "";
+    const el = document.createElement("div");
+    el.className = "tx";
+    el.innerHTML = `
+      <div class="txTop">
+        <div class="txWho">${who}</div>
+        <div class="${cls}">${sign}${centsToCD(r.amtC)} CD</div>
+      </div>
+      <div class="txMeta">${when}${note}</div>
+    `;
+    list.appendChild(el);
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
