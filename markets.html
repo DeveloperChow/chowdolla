@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>ChowDolla Marketplace</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#eaeaea;
+  font-family:-apple-system,system-ui;
+}
+.safe{padding:16px}
+.card{
+  background:#0f1115;
+  border-radius:22px;
+  padding:16px;
+  margin-bottom:14px;
+}
+.big{font-size:26px;font-weight:1000}
+.mid{font-size:16px;font-weight:700}
+.small{font-size:12px;opacity:.6}
+.item{
+  background:#141824;
+  border-radius:16px;
+  padding:14px;
+  margin-top:10px;
+}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+button{
+  padding:10px 14px;
+  border-radius:14px;
+  border:none;
+  background:#1db954;
+  color:#000;
+  font-weight:900;
+}
+.btnGhost{background:#1b1f29;color:#fff}
+.plus{font-size:22px;font-weight:1000;cursor:pointer}
+.badge{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#1db954;
+  color:#000;
+  font-weight:900;
+}
+.locked{opacity:.5}
+</style>
+</head>
+
+<body>
+<div class="safe">
+
+<div class="card">
+  <div class="row">
+    <div class="big">Marketplace</div>
+    <div class="plus" onclick="adminAdd()">+</div>
+  </div>
+  <div class="small">buy • rent • sell assets</div>
+</div>
+
+<div class="card">
+  <div class="mid">Your Balance</div>
+  <div class="big">£<span id="bal">0.00</span></div>
+</div>
+
+<div class="card">
+  <div class="mid">Your Assets</div>
+  <div id="owned"></div>
+</div>
+
+<div class="card">
+  <div class="mid">Available Assets</div>
+  <div id="market"></div>
+</div>
+
+</div>
+
+<script>
+/* ---------------- FIREBASE ---------------- */
+firebase.initializeApp({
+  apiKey:"AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
+  authDomain:"chowdolla.firebaseapp.com",
+  projectId:"chowdolla"
+});
+const db=firebase.firestore();
+
+/* ---------------- STATE ---------------- */
+let me=localStorage.getItem("cd_user");
+let doc=null;
+if(!me){ alert("open from main app"); }
+
+/* ---------------- MARKET DATA ---------------- */
+const BASE_MARKET=[
+  {id:"golf",name:"VW Golf",price:2000,type:"car"},
+  {id:"bmw3",name:"BMW 3 Series",price:5000,type:"car"},
+  {id:"mercA",name:"Mercedes A-Class",price:7500,type:"car"},
+
+  {id:"flat",name:"Basic Flat",price:8000,type:"home",rent:120},
+  {id:"house",name:"Small House",price:15000,type:"home",rent:220},
+  {id:"family",name:"Family Home",price:25000,type:"home",rent:380}
+];
+
+/* ---------------- LOAD USER ---------------- */
+db.collection("users").doc(me).onSnapshot(s=>{
+  if(!s.exists) return;
+  doc=s.data();
+  bal.textContent=doc.balance.toFixed(2);
+  simulateOfflineIncome();
+  render();
+});
+
+/* ---------------- OFFLINE SIMULATION ---------------- */
+function simulateOfflineIncome(){
+  if(!doc.assets || !doc.assets.length) return;
+
+  const now=Date.now();
+  const last=doc.lastAssetTick||now;
+  const mins=Math.floor((now-last)/60000);
+  if(mins<=0) return;
+
+  let earned=0;
+  doc.assets.forEach(a=>{
+    if(a.rent && a.rented){
+      earned+= (a.rent/60)*mins;
+    }
+  });
+
+  if(earned>0){
+    updateBalance(earned);
+  }
+
+  db.collection("users").doc(me).update({lastAssetTick:now});
+}
+
+/* ---------------- RENDER ---------------- */
+function render(){
+  owned.innerHTML="";
+  market.innerHTML="";
+
+  (doc.assets||[]).forEach((a,i)=>{
+    owned.innerHTML+=`
+      <div class="item">
+        <div class="row">
+          <div>
+            <b>${a.name}</b><br>
+            <span class="small">${a.type}</span>
+          </div>
+          <span class="badge">OWNED</span>
+        </div>
+
+        ${a.rent?`
+        <div class="small">rent £${a.rent}/hour</div>
+        <button class="btnGhost" onclick="toggleRent(${i})">
+          ${a.rented?"Stop Renting":"Start Renting"}
+        </button>`:""}
+
+        <button class="btnGhost" onclick="sell(${i})">Sell</button>
+      </div>`;
+  });
+
+  BASE_MARKET.forEach(a=>{
+    market.innerHTML+=`
+      <div class="item">
+        <div class="row">
+          <div>
+            <b>${a.name}</b><br>
+            <span class="small">${a.type}</span>
+          </div>
+          <b>£${a.price.toLocaleString()}</b>
+        </div>
+        ${a.rent?`<div class="small">rent £${a.rent}/hour</div>`:""}
+        <button onclick="buy('${a.id}')">Buy</button>
+      </div>`;
+  });
+}
+
+/* ---------------- ACTIONS ---------------- */
+function updateBalance(v){
+  db.collection("users").doc(me).update({
+    balance:doc.balance+v
+  });
+}
+
+function buy(id){
+  const a=BASE_MARKET.find(x=>x.id===id);
+  if(!a) return;
+  if(doc.balance<a.price) return alert("not enough money");
+
+  const asset={
+    name:a.name,
+    type:a.type,
+    rent:a.rent||0,
+    rented:false,
+    boughtAt:Date.now()
+  };
+
+  db.collection("users").doc(me).update({
+    balance:doc.balance-a.price,
+    assets:[...(doc.assets||[]),asset]
+  });
+}
+
+function sell(i){
+  const a=doc.assets[i];
+  let sellPrice=Math.floor(a.rent? a.rent*40 : 0);
+  sellPrice=Math.max(100,sellPrice);
+
+  const arr=[...doc.assets];
+  arr.splice(i,1);
+
+  db.collection("users").doc(me).update({
+    balance:doc.balance+sellPrice,
+    assets:arr
+  });
+}
+
+function toggleRent(i){
+  const arr=[...doc.assets];
+  arr[i].rented=!arr[i].rented;
+  db.collection("users").doc(me).update({assets:arr});
+}
+
+/* ---------------- ADMIN ---------------- */
+function adminAdd(){
+  if(!doc.isAdmin) return;
+  const name=prompt("asset name");
+  const price=+prompt("price");
+  const rent=+prompt("rent per hour (0 if none)");
+  if(!name||!price) return;
+
+  BASE_MARKET.push({
+    id:Date.now()+"",
+    name,price,rent,
+    type:rent?"home":"car"
+  });
+  render();
+}
+</script>
+</body>
+</html>
