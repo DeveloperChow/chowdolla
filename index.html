@@ -1,284 +1,270 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport"
-  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#05070c">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChowDolla</title>
 
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
 <style>
-:root{
-  --bg:#05070c;
-  --card:#0c1220;
-  --card2:#0f172a;
-  --blue:#3b82f6;
-  --blue2:#60a5fa;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-}
-
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{
-  margin:0;
-  height:100%;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,system-ui;
-  overflow:hidden;
+html,body{margin:0;height:100%;background:#05070b;color:#e8edf6;font-family:-apple-system,system-ui;overflow:hidden}
+
+:root{
+  --card:#0c1524;
+  --card2:#0a111d;
+  --accent:#2d7cff;
+  --muted:#8a94a6;
 }
 
-/* layout */
-.app{
-  height:100%;
-  display:flex;
-  flex-direction:column;
-}
-.top{
-  padding:16px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.top .left{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-.avatar{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue),var(--blue2));
-}
-.btn{
-  padding:10px 14px;
-  border-radius:999px;
-  background:#0b1222;
-  color:white;
-  font-weight:600;
-  border:1px solid rgba(255,255,255,.08);
-}
-.plus{
-  width:40px;height:40px;border-radius:50%;
-  background:var(--blue);
-  color:white;font-size:24px;
-  display:grid;place-items:center;
-}
-
-.content{
-  flex:1;
-  padding:12px;
-}
-.card{
-  background:linear-gradient(180deg,var(--card),var(--card2));
-  border-radius:22px;
-  padding:16px;
-  margin-bottom:12px;
-  border:1px solid rgba(255,255,255,.08);
-}
-
-/* home */
-.balance{
-  font-size:36px;
-  font-weight:800;
-}
-.sub{
-  color:var(--muted);
-  font-size:13px;
-}
-
-.tapBtn{
-  margin-top:12px;
-  padding:18px;
-  border-radius:18px;
-  background:linear-gradient(180deg,var(--blue),#2563eb);
-  font-size:22px;
-  font-weight:900;
-  text-align:center;
-}
-
-.bonusGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:12px;
-}
-.bonus{
-  background:#0b1222;
-  border-radius:14px;
-  padding:12px;
-  text-align:center;
-  border:1px solid rgba(255,255,255,.08);
-  font-weight:700;
-}
-.bonus small{
-  display:block;
-  color:var(--muted);
-  font-weight:500;
-}
-
-/* nav */
-.nav{
-  padding:10px 8px calc(env(safe-area-inset-bottom) + 8px);
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;
-  background:#020409;
-}
-.nav button{
-  background:#0b1222;
-  border:none;
-  border-radius:16px;
-  padding:10px 0;
-  color:var(--muted);
-  font-size:11px;
-}
-.nav button.active{
-  background:var(--blue);
-  color:white;
-}
-
-/* pages */
-.page{display:none;height:100%}
+.app{height:100%;display:flex;flex-direction:column}
+.page{flex:1;display:none;padding:14px}
 .page.active{display:block}
-.scroll{
-  max-height:100%;
-  overflow-y:auto;
-  padding-bottom:10px;
-}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border-radius:22px;padding:14px;margin-bottom:12px}
+h1{font-size:18px;margin:0}
+.small{font-size:12px;color:var(--muted)}
+.btn{background:var(--accent);border:none;color:white;padding:10px 14px;border-radius:14px;font-weight:700}
+.btn.dark{background:#101b30}
+.row{display:flex;justify-content:space-between;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
-/* disable bounce */
-.scroll::-webkit-scrollbar{display:none}
+.nav{padding:10px;background:#05070b}
+.navRow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.navBtn{background:#0d1626;border-radius:14px;padding:10px 0;text-align:center;font-size:12px;color:#9aa3b2}
+.navBtn.active{background:var(--accent);color:white}
+
+.list{margin-top:8px}
+.item{padding:10px;border-radius:14px;background:#0e182a;margin-bottom:8px}
+
+input{width:100%;padding:10px;border-radius:12px;border:none;background:#0d1626;color:white}
+
+canvas{background:#000;border-radius:12px}
 </style>
 </head>
 
 <body>
 <div class="app">
 
-  <!-- TOP BAR -->
-  <div class="top">
-    <div class="left">
-      <div class="avatar"></div>
-      <div>
-        <div style="font-weight:700">ChowDolla</div>
-        <div class="sub">FAKE MONEY GAME</div>
-      </div>
-    </div>
-    <button class="btn" onclick="openLeaderboard()">🏆</button>
+<!-- HOME -->
+<div class="page active" id="home">
+  <div class="card">
+    <div class="small">Balance</div>
+    <h1>£<span id="bal">0.00</span></h1>
+    <button class="btn" onclick="tap()">TAP +£0.05</button>
+    <div class="small">Taps: <span id="taps">0</span></div>
   </div>
 
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- HOME -->
-    <div class="page active" id="home">
-      <div class="card">
-        <div class="sub">Balance</div>
-        <div class="balance">£<span id="bal">0.00</span></div>
-
-        <div class="tapBtn" onclick="tap()">TAP +£0.05</div>
-
-        <div class="bonusGrid">
-          <div class="bonus" onclick="bonus(2,600)">+£2<small>10m</small></div>
-          <div class="bonus" onclick="bonus(5,1800)">+£5<small>30m</small></div>
-          <div class="bonus" onclick="bonus(10,3600)">+£10<small>1h</small></div>
-          <div class="bonus" onclick="bonus(20,7200)">+£20<small>2h</small></div>
-          <div class="bonus" onclick="bonus(50,21600)">+£50<small>6h</small></div>
-          <div class="bonus" onclick="bonus(100,43200)">+£100<small>12h</small></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PAY -->
-    <div class="page scroll" id="pay">
-      <div class="card">
-        <b>Payments</b>
-        <div class="sub">Game transfers coming next</div>
-      </div>
-    </div>
-
-    <!-- JOBS -->
-    <div class="page scroll" id="jobs">
-      <div class="card">
-        <b>Jobs</b>
-        <div class="sub">Earn automatically (while app open)</div>
-      </div>
-    </div>
-
-    <!-- ASSETS -->
-    <div class="page scroll" id="assets">
-      <div class="card">
-        <b>Assets</b>
-        <div class="sub">Cars & homes you own</div>
-      </div>
-    </div>
-
-    <!-- ME -->
-    <div class="page scroll" id="me">
-      <div class="card">
-        <b>Profile</b>
-        <div class="sub">@chowibz</div>
-        <button class="btn" onclick="adminAdd()">Admin add money</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- NAV -->
-  <div class="nav">
-    <button class="active" onclick="go('home',this)">Home</button>
-    <button onclick="go('pay',this)">Pay</button>
-    <button onclick="go('jobs',this)">Jobs</button>
-    <button onclick="go('assets',this)">Assets</button>
-    <button onclick="go('me',this)">Me</button>
+  <div class="card">
+    <h1>Bonuses</h1>
+    <div class="grid" id="bonusGrid"></div>
   </div>
 </div>
 
+<!-- PAY -->
+<div class="page" id="pay">
+  <div class="card">
+    <h1>Send money</h1>
+    <input id="payTo" placeholder="username">
+    <input id="payAmt" placeholder="amount">
+    <button class="btn" onclick="sendMoney()">Send</button>
+  </div>
+
+  <div class="card">
+    <h1>Transactions</h1>
+    <div id="txList" class="list"></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="chat">
+  <div class="card">
+    <h1>Chat</h1>
+    <input id="chatMsg" placeholder="message">
+    <button class="btn" onclick="sendChat()">Send</button>
+  </div>
+  <div class="card">
+    <div id="chatList" class="list"></div>
+  </div>
+</div>
+
+<!-- ASSETS -->
+<div class="page" id="assets">
+  <div class="card">
+    <h1>Assets</h1>
+    <div class="item">
+      🎮 Game Console<br>
+      <span class="small">Unlock at 40 taps</span><br><br>
+      <button class="btn dark" onclick="openConsole()">Open</button>
+    </div>
+  </div>
+
+  <div class="card" id="gameCard" style="display:none">
+    <h1>Flappy Bird</h1>
+    <canvas id="game" width="300" height="400"></canvas><br><br>
+    <button class="btn dark" onclick="closeGame()">Close</button>
+  </div>
+</div>
+
+<!-- ME -->
+<div class="page" id="me">
+  <div class="card">
+    <h1>@chowibz</h1>
+    <button class="btn" onclick="adminAdd()">Admin add money</button>
+  </div>
+  <div class="card">
+    <div class="item" onclick="logout()">Log out</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="navRow">
+    <div class="navBtn active" onclick="go('home')">Home</div>
+    <div class="navBtn" onclick="go('pay')">Pay</div>
+    <div class="navBtn" onclick="go('chat')">Chat</div>
+    <div class="navBtn" onclick="go('assets')">Assets</div>
+    <div class="navBtn" onclick="go('me')">Me</div>
+  </div>
+</div>
+
+</div>
+
 <script>
-let balance = Number(localStorage.getItem("bal")||0);
-let cooldowns = JSON.parse(localStorage.getItem("cd")||"{}");
+/* ---------- STATE ---------- */
+let bal=Number(localStorage.bal||0);
+let taps=Number(localStorage.taps||0);
+let tx=JSON.parse(localStorage.tx||"[]");
+let chats=JSON.parse(localStorage.chats||"[]");
 
-function render(){
-  document.getElementById("bal").textContent = balance.toFixed(2);
-  localStorage.setItem("bal",balance);
-  localStorage.setItem("cd",JSON.stringify(cooldowns));
-}
-render();
-
+/* ---------- HOME ---------- */
 function tap(){
-  balance += 0.05;
-  render();
+  taps++;
+  bal+=0.05;
+  save();
+}
+const bonuses=[
+  {amt:2,cd:600},
+  {amt:5,cd:1800},
+  {amt:10,cd:3600}
+];
+
+function renderBonuses(){
+  bonusGrid.innerHTML="";
+  bonuses.forEach((b,i)=>{
+    const last=Number(localStorage["b"+i]||0);
+    const left=b.cd-(Date.now()/1000-last);
+    const btn=document.createElement("button");
+    btn.className="btn dark";
+    btn.innerHTML=`+£${b.amt}<br><span class="small">${left>0?Math.ceil(left/60)+"m":"READY"}</span>`;
+    btn.onclick=()=>claimBonus(i);
+    if(left>0)btn.style.opacity=.4;
+    bonusGrid.appendChild(btn);
+  });
+}
+function claimBonus(i){
+  const b=bonuses[i];
+  const last=Number(localStorage["b"+i]||0);
+  if(Date.now()/1000-last<b.cd)return;
+  bal+=b.amt;
+  localStorage["b"+i]=Date.now()/1000;
+  save();
 }
 
-function bonus(amount, cd){
-  const k = "b"+amount;
-  const now = Date.now();
-  if(cooldowns[k] && now < cooldowns[k]) return;
-  cooldowns[k] = now + cd*1000;
-  balance += amount;
-  render();
+/* ---------- PAY ---------- */
+function sendMoney(){
+  const to=payTo.value;
+  const amt=Number(payAmt.value);
+  if(!to||!amt||amt<=0||amt>bal)return;
+  bal-=amt;
+  tx.unshift({to,amt,time:new Date().toLocaleString()});
+  save();
+}
+function renderTx(){
+  txList.innerHTML=tx.map(t=>`
+    <div class="item">To ${t.to} £${t.amt}<br><span class="small">${t.time}</span></div>
+  `).join("");
 }
 
-function go(id,btn){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
+/* ---------- CHAT ---------- */
+function sendChat(){
+  const m=chatMsg.value;
+  if(!m)return;
+  chats.unshift({m,time:new Date().toLocaleTimeString()});
+  chatMsg.value="";
+  save();
+}
+function renderChat(){
+  chatList.innerHTML=chats.map(c=>`
+    <div class="item">${c.m}<br><span class="small">${c.time}</span></div>
+  `).join("");
 }
 
+/* ---------- ASSET GAME ---------- */
+let gameInt;
+function openConsole(){
+  if(taps<40)return alert("Need 40 taps");
+  gameCard.style.display="block";
+  startGame();
+}
+function closeGame(){
+  gameCard.style.display="none";
+  clearInterval(gameInt);
+}
+function startGame(){
+  const c=game.getContext("2d");
+  let y=200,vy=0,pipe=300,score=0;
+  gameInt=setInterval(()=>{
+    c.clearRect(0,0,300,400);
+    vy+=0.5;y+=vy;
+    pipe-=2;if(pipe<0)pipe=300;
+    c.fillStyle="green";c.fillRect(pipe,0,40,150);
+    c.fillRect(pipe,250,40,200);
+    c.fillStyle="yellow";c.fillRect(50,y,20,20);
+    if(y>380||y<0||(
+      pipe<70&&pipe>10&&(y<150||y>250)
+    )){clearInterval(gameInt);alert("Game over")}
+  },30);
+  game.onclick=()=>vy=-6;
+}
+
+/* ---------- ADMIN ---------- */
 function adminAdd(){
-  const u = prompt("Admin add amount");
-  const v = Number(u);
-  if(!isNaN(v)) { balance += v; render(); }
+  const v=Number(prompt("Amount"));
+  if(!v)return;
+  bal+=v;
+  save();
 }
 
-function openLeaderboard(){
-  alert("Leaderboard coming soon");
+/* ---------- CORE ---------- */
+function save(){
+  localStorage.bal=bal;
+  localStorage.taps=taps;
+  localStorage.tx=JSON.stringify(tx);
+  localStorage.chats=JSON.stringify(chats);
+  render();
 }
+function render(){
+  balEl.textContent=bal.toFixed(2);
+  tapsEl.textContent=taps;
+  renderBonuses();
+  renderTx();
+  renderChat();
+}
+function go(p){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".navBtn").forEach(x=>x.classList.remove("active"));
+  document.getElementById(p).classList.add("active");
+  [...document.querySelectorAll(".navBtn")].find(b=>b.textContent.toLowerCase()==p).classList.add("active");
+}
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+
+/* ---------- INIT ---------- */
+const balEl=document.getElementById("bal");
+const tapsEl=document.getElementById("taps");
+render();
+setInterval(renderBonuses,1000);
 </script>
 </body>
 </html>
