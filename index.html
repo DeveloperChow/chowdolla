@@ -1,211 +1,283 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#05060a">
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#05070c">
 <title>ChowDolla</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
 
 <style>
+:root{
+  --bg:#05070c;
+  --card:#0c1220;
+  --card2:#0f172a;
+  --blue:#3b82f6;
+  --blue2:#60a5fa;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{
   margin:0;
   height:100%;
-  background:#05060a;
-  color:#fff;
+  background:var(--bg);
+  color:var(--text);
   font-family:-apple-system,system-ui;
-  overflow:hidden; /* 🚫 NO SCROLL */
+  overflow:hidden;
 }
-*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
 
-.safe{
+/* layout */
+.app{
   height:100%;
   display:flex;
   flex-direction:column;
 }
-
-.topbar{
+.top{
+  padding:16px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  padding:14px 16px;
+  align-items:center;
 }
-
-.balance{
-  font-size:28px;
-  font-weight:1000;
+.top .left{
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
-
-.leader{
-  width:32px;height:32px;
-  border-radius:10px;
-  background:#1f6bff;
+.avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+}
+.btn{
+  padding:10px 14px;
+  border-radius:999px;
+  background:#0b1222;
+  color:white;
+  font-weight:600;
+  border:1px solid rgba(255,255,255,.08);
+}
+.plus{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--blue);
+  color:white;font-size:24px;
   display:grid;place-items:center;
-  font-weight:900;
 }
 
+.content{
+  flex:1;
+  padding:12px;
+}
 .card{
-  background:#0d1220;
+  background:linear-gradient(180deg,var(--card),var(--card2));
   border-radius:22px;
   padding:16px;
-  margin:10px 16px;
+  margin-bottom:12px;
+  border:1px solid rgba(255,255,255,.08);
 }
 
-.btn{
-  background:#1f6bff;
-  color:#fff;
-  border:none;
-  border-radius:16px;
-  padding:14px;
-  font-size:16px;
+/* home */
+.balance{
+  font-size:36px;
+  font-weight:800;
+}
+.sub{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.tapBtn{
+  margin-top:12px;
+  padding:18px;
+  border-radius:18px;
+  background:linear-gradient(180deg,var(--blue),#2563eb);
+  font-size:22px;
   font-weight:900;
+  text-align:center;
 }
 
-.grid{
+.bonusGrid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
+  margin-top:12px;
 }
-
 .bonus{
-  background:#123cff;
-  border-radius:16px;
-  padding:14px;
+  background:#0b1222;
+  border-radius:14px;
+  padding:12px;
   text-align:center;
-  font-weight:900;
+  border:1px solid rgba(255,255,255,.08);
+  font-weight:700;
 }
-
 .bonus small{
   display:block;
-  opacity:.6;
+  color:var(--muted);
+  font-weight:500;
+}
+
+/* nav */
+.nav{
+  padding:10px 8px calc(env(safe-area-inset-bottom) + 8px);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  background:#020409;
+}
+.nav button{
+  background:#0b1222;
+  border:none;
+  border-radius:16px;
+  padding:10px 0;
+  color:var(--muted);
   font-size:11px;
 }
-
-.nav{
-  margin-top:auto;
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:8px;
-  padding:12px;
-  background:#05060a;
+.nav button.active{
+  background:var(--blue);
+  color:white;
 }
 
-.nav div{
-  background:#0d1220;
-  border-radius:14px;
-  padding:10px;
-  text-align:center;
-  font-size:12px;
+/* pages */
+.page{display:none;height:100%}
+.page.active{display:block}
+.scroll{
+  max-height:100%;
+  overflow-y:auto;
+  padding-bottom:10px;
 }
 
-.hidden{display:none}
+/* disable bounce */
+.scroll::-webkit-scrollbar{display:none}
 </style>
 </head>
 
 <body>
-<div class="safe">
+<div class="app">
 
-<!-- TOP -->
-<div class="topbar">
-  <div class="leader" onclick="showLeaderboard()">🏆</div>
-  <div class="balance">£<span id="bal">0.00</span></div>
-  <div style="width:32px"></div>
-</div>
+  <!-- TOP BAR -->
+  <div class="top">
+    <div class="left">
+      <div class="avatar"></div>
+      <div>
+        <div style="font-weight:700">ChowDolla</div>
+        <div class="sub">FAKE MONEY GAME</div>
+      </div>
+    </div>
+    <button class="btn" onclick="openLeaderboard()">🏆</button>
+  </div>
 
-<!-- TAP -->
-<div class="card">
-  <button class="btn" style="width:100%" onclick="tap()">TAP +£0.05</button>
-</div>
+  <!-- CONTENT -->
+  <div class="content">
 
-<!-- BONUS -->
-<div class="card">
-  <div style="font-weight:900;margin-bottom:10px">Bonuses</div>
-  <div class="grid">
-    <div class="bonus" onclick="bonus(2,600000)">+£2<small>10m</small></div>
-    <div class="bonus" onclick="bonus(5,1800000)">+£5<small>30m</small></div>
-    <div class="bonus" onclick="bonus(10,3600000)">+£10<small>1h</small></div>
-    <div class="bonus" onclick="bonus(20,7200000)">+£20<small>2h</small></div>
-    <div class="bonus" onclick="bonus(50,21600000)">+£50<small>6h</small></div>
-    <div class="bonus" onclick="bonus(100,43200000)">+£100<small>12h</small></div>
+    <!-- HOME -->
+    <div class="page active" id="home">
+      <div class="card">
+        <div class="sub">Balance</div>
+        <div class="balance">£<span id="bal">0.00</span></div>
+
+        <div class="tapBtn" onclick="tap()">TAP +£0.05</div>
+
+        <div class="bonusGrid">
+          <div class="bonus" onclick="bonus(2,600)">+£2<small>10m</small></div>
+          <div class="bonus" onclick="bonus(5,1800)">+£5<small>30m</small></div>
+          <div class="bonus" onclick="bonus(10,3600)">+£10<small>1h</small></div>
+          <div class="bonus" onclick="bonus(20,7200)">+£20<small>2h</small></div>
+          <div class="bonus" onclick="bonus(50,21600)">+£50<small>6h</small></div>
+          <div class="bonus" onclick="bonus(100,43200)">+£100<small>12h</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAY -->
+    <div class="page scroll" id="pay">
+      <div class="card">
+        <b>Payments</b>
+        <div class="sub">Game transfers coming next</div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div class="page scroll" id="jobs">
+      <div class="card">
+        <b>Jobs</b>
+        <div class="sub">Earn automatically (while app open)</div>
+      </div>
+    </div>
+
+    <!-- ASSETS -->
+    <div class="page scroll" id="assets">
+      <div class="card">
+        <b>Assets</b>
+        <div class="sub">Cars & homes you own</div>
+      </div>
+    </div>
+
+    <!-- ME -->
+    <div class="page scroll" id="me">
+      <div class="card">
+        <b>Profile</b>
+        <div class="sub">@chowibz</div>
+        <button class="btn" onclick="adminAdd()">Admin add money</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="active" onclick="go('home',this)">Home</button>
+    <button onclick="go('pay',this)">Pay</button>
+    <button onclick="go('jobs',this)">Jobs</button>
+    <button onclick="go('assets',this)">Assets</button>
+    <button onclick="go('me',this)">Me</button>
   </div>
 </div>
 
-<!-- ADMIN -->
-<div class="card hidden" id="admin">
-  <div style="font-weight:900">Admin</div>
-  <input id="adminAmt" placeholder="£ amount"
-  style="width:100%;margin:10px 0;padding:12px;border-radius:14px;border:none">
-  <button class="btn" onclick="adminAdd()">Add Money</button>
-</div>
-
-<!-- NAV -->
-<div class="nav">
-  <div>Home</div>
-  <div>Pay</div>
-  <div>Chat</div>
-  <div>Jobs</div>
-  <div>Assets</div>
-  <div onclick="logout()">Me</div>
-</div>
-
-</div>
-
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
-  authDomain:"chowdolla.firebaseapp.com",
-  projectId:"chowdolla"
-});
-const db=firebase.firestore();
+let balance = Number(localStorage.getItem("bal")||0);
+let cooldowns = JSON.parse(localStorage.getItem("cd")||"{}");
 
-const me=localStorage.getItem("cd_user")||"chowibz"; // demo safe
-const ref=db.collection("users").doc(me);
-let doc=null;
-
-ref.onSnapshot(s=>{
-  if(!s.exists){
-    ref.set({balance:0,bonuses:{},isAdmin:me==="chowibz"});
-    return;
-  }
-  doc=s.data();
-  bal.textContent=doc.balance.toFixed(2);
-  if(doc.isAdmin) admin.classList.remove("hidden");
-});
+function render(){
+  document.getElementById("bal").textContent = balance.toFixed(2);
+  localStorage.setItem("bal",balance);
+  localStorage.setItem("cd",JSON.stringify(cooldowns));
+}
+render();
 
 function tap(){
-  ref.update({balance:doc.balance+0.05});
+  balance += 0.05;
+  render();
 }
 
-function bonus(amount,cd){
-  const now=Date.now();
-  const key="b_"+amount;
-  if(doc.bonuses?.[key] && now<doc.bonuses[key]){
-    alert("Cooldown");
-    return;
-  }
-  ref.update({
-    balance:doc.balance+amount,
-    [`bonuses.${key}`]:now+cd
-  });
+function bonus(amount, cd){
+  const k = "b"+amount;
+  const now = Date.now();
+  if(cooldowns[k] && now < cooldowns[k]) return;
+  cooldowns[k] = now + cd*1000;
+  balance += amount;
+  render();
+}
+
+function go(id,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
 }
 
 function adminAdd(){
-  const v=parseFloat(adminAmt.value);
-  if(!v||v<=0) return;
-  ref.update({balance:doc.balance+v});
-  adminAmt.value="";
+  const u = prompt("Admin add amount");
+  const v = Number(u);
+  if(!isNaN(v)) { balance += v; render(); }
 }
 
-function showLeaderboard(){
-  alert("Leaderboard coming next 👀");
-}
-
-function logout(){
-  localStorage.removeItem("cd_user");
-  location.reload();
+function openLeaderboard(){
+  alert("Leaderboard coming soon");
 }
 </script>
 </body>
