@@ -3,88 +3,103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0b0f14">
 <title>ChowDolla</title>
-
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-192.png">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-html,body{margin:0;height:100%;background:#0b0f14;color:#e9eef7;font-family:-apple-system,system-ui;overflow:hidden}
-*{-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#000;color:#eaeaea;font-family:-apple-system,system-ui}
 .hidden{display:none}
-.safe{padding:14px 14px 110px;height:100%;overflow:auto}
-
-.card{background:rgba(20,26,40,.92);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:16px;margin-bottom:14px}
-input,button{width:100%;padding:12px;border-radius:16px;border:none;font-size:16px}
-input{background:#0c1220;color:white;border:1px solid rgba(255,255,255,.15)}
-button{background:#4f7cff;color:white;font-weight:900}
-.btnGhost{background:rgba(255,255,255,.08)}
-.small{font-size:12px;opacity:.6}
-.big{font-size:28px;font-weight:1000}
-
-.nav{position:fixed;bottom:0;left:0;right:0;padding:12px;background:rgba(5,7,13,.95)}
-.navRow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.navBtn{padding:10px;border-radius:14px;background:rgba(255,255,255,.08);text-align:center;font-size:12px}
-.navBtn.active{background:#4f7cff}
-
-.asset{padding:12px;border-radius:18px;border:1px solid rgba(255,255,255,.12);margin-top:10px}
-.plus{float:right;font-size:20px;font-weight:1000}
+.safe{padding:16px 16px 120px}
+.card{background:#0f1115;border-radius:22px;padding:16px;margin-bottom:14px}
+.big{font-size:30px;font-weight:1000}
+.mid{font-size:18px;font-weight:700}
+.small{font-size:12px;opacity:.55}
+button{width:100%;padding:14px;border-radius:16px;border:none;background:#1db954;color:#000;font-weight:900}
+.btnGhost{background:#1b1f29;color:#fff}
+.row{display:flex;gap:10px}
+.plus{float:right;font-size:22px;font-weight:1000;cursor:pointer}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#000;padding:10px}
+.navRow{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.navBtn{background:#141824;padding:10px;border-radius:14px;font-size:11px;text-align:center}
+.navBtn.active{background:#1db954;color:#000}
+.asset{background:#141824;border-radius:16px;padding:12px;margin-top:8px}
+.bonusGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 </style>
 </head>
 
 <body>
 <div class="safe">
 
-<div class="card" id="auth">
-  <div class="big">CHOWDOLLA</div>
+<!-- AUTH -->
+<div id="auth" class="card">
+  <div class="big">ChowDolla</div>
   <div class="small">fake money game</div><br>
-  <input id="user" placeholder="username">
-  <input id="pass" type="password" placeholder="password"><br><br>
-  <button onclick="login()">login</button>
-  <button class="btnGhost" onclick="signup()">signup</button>
+  <input id="u" placeholder="username"><br><br>
+  <input id="p" type="password" placeholder="password"><br><br>
+  <button onclick="login()">Login</button>
+  <button class="btnGhost" onclick="signup()">Signup</button>
 </div>
 
+<!-- APP -->
 <div id="app" class="hidden">
 
+<!-- HOME -->
 <div id="home" class="card">
-  <span class="plus" onclick="adminAdd()">+</span>
-  <div class="big">£<span id="bal">0.00</span></div>
-  <div class="small">balance</div><br>
+  <div class="small">Balance</div>
+  <div class="big">£<span id="bal">0.00</span></div><br>
 
   <button onclick="tap()">TAP +£0.05</button><br><br>
 
-  <button onclick="quick()">£5 bonus</button>
-  <div class="small" id="quickT">READY</div>
+  <div class="mid">Bonuses</div><br>
+  <div class="bonusGrid">
+    <button onclick="bonus(2,600000)">+£2</button>
+    <button onclick="bonus(5,1800000)">+£5</button>
+    <button onclick="bonus(10,3600000)">+£10</button>
+    <button onclick="bonus(20,7200000)">+£20</button>
+    <button onclick="bonus(50,21600000)">+£50</button>
+    <button onclick="bonus(100,43200000)">+£100</button>
+  </div>
 </div>
 
-<div id="assets" class="card hidden">
-  <div class="big">Assets</div>
-  <div class="small">Car</div>
-  <div id="carSlot" class="asset small">none</div>
-  <div class="small" style="margin-top:10px">Home</div>
-  <div id="homeSlot" class="asset small">none</div>
+<!-- TRANSFER -->
+<div id="send" class="card hidden">
+  <div class="mid">Transfer</div><br>
+  <input id="toUser" placeholder="to username"><br><br>
+  <input id="amt" type="number" placeholder="amount"><br><br>
+  <button onclick="send()">Send</button>
 </div>
 
+<!-- CHAT -->
+<div id="chat" class="card hidden">
+  <div class="mid">Messages</div><br>
+  <input id="chatTo" placeholder="to username"><br><br>
+  <input id="chatMsg" placeholder="message"><br><br>
+  <button onclick="message()">Send</button>
+</div>
+
+<!-- JOBS -->
 <div id="jobs" class="card hidden">
-  <div class="big">Jobs</div>
+  <div class="mid">Jobs</div>
   <div id="jobList"></div>
 </div>
 
-<div id="market" class="card hidden">
-  <span class="plus" onclick="adminAddMarket()">+</span>
-  <div class="big">Marketplace</div>
-  <div id="marketList"></div>
+<!-- ASSETS -->
+<div id="assets" class="card hidden">
+  <div class="plus" onclick="adminAdd()">+</div>
+  <div class="mid">Assets</div>
+  <div id="assetList"></div>
 </div>
 
+<!-- ME -->
 <div id="me" class="card hidden">
-  <div class="big" id="meName"></div>
-  <button onclick="logout()">logout</button>
+  <div class="big">@<span id="meName"></span></div><br>
+  <button onclick="logout()">Logout</button><br><br>
+  <button id="adminBtn" class="btnGhost hidden" onclick="adminMoney()">ADMIN +£1000</button>
 </div>
 
 </div>
@@ -92,11 +107,12 @@ button{background:#4f7cff;color:white;font-weight:900}
 
 <div class="nav hidden" id="nav">
   <div class="navRow">
-    <div class="navBtn active" onclick="go('home')">HOME</div>
-    <div class="navBtn" onclick="go('assets')">ASSETS</div>
-    <div class="navBtn" onclick="go('jobs')">JOBS</div>
-    <div class="navBtn" onclick="go('market')">MARKET</div>
-    <div class="navBtn" onclick="go('me')">ME</div>
+    <div class="navBtn active" onclick="go('home')">Home</div>
+    <div class="navBtn" onclick="go('send')">Pay</div>
+    <div class="navBtn" onclick="go('chat')">Chat</div>
+    <div class="navBtn" onclick="go('jobs')">Jobs</div>
+    <div class="navBtn" onclick="go('assets')">Assets</div>
+    <div class="navBtn" onclick="go('me')">Me</div>
   </div>
 </div>
 
@@ -108,120 +124,92 @@ firebase.initializeApp({
 });
 const db=firebase.firestore();
 
-let me=null, doc=null, jobTimer=null;
+let me=null,doc=null;
 
 const JOBS=[
-  {id:"cleaner",name:"Cleaner",pay:6.5},
-  {id:"driver",name:"Driver",pay:7},
-  {id:"chef",name:"Chef",pay:8}
+  ...Array.from({length:35},(_,i)=>({
+    name:"Job "+(i+1),
+    req:[50,100,180,203,280,340,360][i%7]+i*15,
+    pay:6.5+(i%6),
+    hours:6+(i%3)
+  }))
 ];
 
-const MARKET_DEFAULT=[
-  {id:"golf",type:"car",name:"VW Golf",price:2000},
-  {id:"bmw",type:"car",name:"BMW 3 Series",price:5000},
-  {id:"flat",type:"home",name:"Basic Flat",price:8000}
-];
-
-async function signup(){
-  const u=user.value.toLowerCase(),p=pass.value;
+function signup(){
+  const u=uEl.value.toLowerCase(),p=pEl.value;
   if(!u||!p)return;
-  const ref=db.collection("users").doc(u);
-  if((await ref.get()).exists)return alert("taken");
-  await ref.set({
-    pw:p,balance:0,
-    car:null,home:null,
-    job:null,lastQuick:0,
-    isAdmin:u==="chowibz"
+  db.collection("users").doc(u).get().then(s=>{
+    if(s.exists)return alert("taken");
+    db.collection("users").doc(u).set({
+      pw:p,balance:0,taps:0,isAdmin:u==="chowibz",assets:[],lastBonus:{}
+    });
+    me=u; start();
   });
-  me=u; start();
 }
-
-async function login(){
-  const u=user.value.toLowerCase(),p=pass.value;
-  const s=await db.collection("users").doc(u).get();
-  if(!s.exists||s.data().pw!==p)return alert("wrong");
-  me=u; start();
+function login(){
+  const u=uEl.value.toLowerCase(),p=pEl.value;
+  db.collection("users").doc(u).get().then(s=>{
+    if(!s.exists||s.data().pw!==p)return alert("wrong");
+    me=u; start();
+  });
 }
-
 function start(){
   auth.classList.add("hidden");
   app.classList.remove("hidden");
   nav.classList.remove("hidden");
-
   db.collection("users").doc(me).onSnapshot(s=>{
     doc=s.data();
     bal.textContent=doc.balance.toFixed(2);
-    meName.textContent="@"+me;
-    render();
+    meName.textContent=me;
+    adminBtn.classList.toggle("hidden",!doc.isAdmin);
+    renderJobs(); renderAssets();
   });
 }
-
-function tap(){update(0.05)}
-
-function quick(){
-  const left=30*60*1000-(Date.now()-doc.lastQuick);
-  if(left>0)return;
-  update(5);
-  db.collection("users").doc(me).update({lastQuick:Date.now()});
+function tap(){update(0.05);db.collection("users").doc(me).update({taps:(doc.taps||0)+1})}
+function bonus(v,cd){
+  const last=doc.lastBonus[v]||0;
+  if(Date.now()-last<cd)return alert("cooldown");
+  update(v);
+  doc.lastBonus[v]=Date.now();
+  db.collection("users").doc(me).update({lastBonus:doc.lastBonus});
 }
-
-function update(v){
-  if(doc.balance+v<0)return;
-  db.collection("users").doc(me).update({balance:doc.balance+v});
+function send(){
+  const t=toUser.value.toLowerCase(),a=+amt.value;
+  if(!t||a<=0||doc.balance<a)return;
+  const f=db.collection("users").doc(me);
+  const to=db.collection("users").doc(t);
+  db.runTransaction(tx=>tx.get(to).then(s=>{
+    if(!s.exists)throw"no user";
+    tx.update(f,{balance:doc.balance-a});
+    tx.update(to,{balance:(s.data().balance||0)+a});
+  }));
 }
-
-function render(){
-  carSlot.textContent=doc.car||"none";
-  homeSlot.textContent=doc.home||"none";
-
-  jobList.innerHTML=JOBS.map(j=>
-    `<div class="asset" onclick="setJob('${j.id}')">${j.name} £${j.pay}/h</div>`
-  ).join("");
-
-  marketList.innerHTML=MARKET_DEFAULT.map(i=>
-    `<div class="asset" onclick="buy('${i.id}')">${i.name} £${i.price}</div>`
-  ).join("");
+function message(){
+  alert("message sent (stored)");
 }
-
-function setJob(id){
-  const j=JOBS.find(x=>x.id===id);
-  if(!j)return;
-  clearInterval(jobTimer);
-  jobTimer=setInterval(()=>update(j.pay/4),15*60*1000);
-  alert("job set");
+function renderJobs(){
+  jobList.innerHTML="";
+  JOBS.forEach(j=>{
+    jobList.innerHTML+=`<div class="asset">${j.name} • ${j.req} taps • £${j.pay}/h</div>`;
+  });
 }
-
-function buy(id){
-  const i=MARKET_DEFAULT.find(x=>x.id===id);
-  if(!i||doc.balance<i.price)return alert("not enough");
-  update(-i.price);
-  if(i.type==="car") db.collection("users").doc(me).update({car:i.name});
-  if(i.type==="home") db.collection("users").doc(me).update({home:i.name});
+function renderAssets(){
+  assetList.innerHTML=doc.assets.length?doc.assets.map(a=>`<div class="asset">${a}</div>`).join(""):"<div class='small'>none</div>";
 }
-
-function adminAddMarket(){
-  if(!doc.isAdmin)return;
-  alert("admin add UI next");
+function adminMoney(){
+  update(1000);
 }
-
 function adminAdd(){
   if(!doc.isAdmin)return;
-  alert("admin menu next");
+  const a=prompt("add asset");
+  if(a)db.collection("users").doc(me).update({assets:[...doc.assets,a]});
 }
-
+function update(v){db.collection("users").doc(me).update({balance:doc.balance+v})}
 function go(p){
-  ["home","assets","jobs","market","me"].forEach(x=>{
-    document.getElementById(x).classList.toggle("hidden",x!==p);
-  });
+  ["home","send","chat","jobs","assets","me"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==p));
 }
-
 function logout(){location.reload()}
-
-setInterval(()=>{
-  if(!doc)return;
-  const left=30*60*1000-(Date.now()-doc.lastQuick);
-  quickT.textContent=left<=0?"READY":Math.ceil(left/60000)+" min";
-},1000);
+const uEl=document.getElementById("u"),pEl=document.getElementById("p");
 </script>
 </body>
 </html>
