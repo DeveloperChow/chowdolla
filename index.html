@@ -31,16 +31,22 @@ body{
   touch-action: manipulation;
 }
 .hidden{display:none}
-.safe{
-  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 88px);
-  height:100%; overflow:auto; overscroll-behavior:none;
-}
+
+/* FIX: header overlay in iPhone standalone */
 .topbar{
-  position:sticky; top:0; z-index:10;
-  padding:10px 10px 14px;
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:1000;
+  padding:calc(env(safe-area-inset-top) + 10px) 14px 14px;
   background:linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.65), rgba(11,15,20,0));
   backdrop-filter:blur(12px);
 }
+.safe{
+  /* push content below fixed header */
+  padding:calc(env(safe-area-inset-top) + 110px) 14px calc(env(safe-area-inset-bottom) + 98px);
+  height:100%; overflow:auto; overscroll-behavior:none;
+}
+
 .brandWrap{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   border:1px solid var(--line); border-radius:var(--radius);
@@ -61,6 +67,7 @@ body{
   font-size:11px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);
   background:rgba(0,0,0,.18);color:var(--muted);white-space:nowrap;
 }
+
 .card{
   border:1px solid var(--line);
   background:linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
@@ -107,6 +114,7 @@ button:active{transform:scale(.985)}
 
 .bigMoney{font-size:36px;font-weight:1000;letter-spacing:1px;margin:6px 0 0}
 .subMoney{font-size:12px;color:var(--muted);letter-spacing:1px}
+
 .kpi{display:flex;gap:10px;margin-top:10px}
 .kpi .box{flex:1;border:1px solid var(--line);background:rgba(0,0,0,.16);border-radius:16px;padding:10px}
 .kpi .k{font-size:11px;color:var(--muted);letter-spacing:1px}
@@ -137,6 +145,23 @@ button:active{transform:scale(.985)}
 .tapCore:active{transform:scale(.985)}
 .tapHint{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:1px}
 
+/* BIG LEVEL BAR */
+.lvlTrack{
+  height:18px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  overflow:hidden;
+  margin-top:10px;
+}
+.lvlFill{
+  height:100%;
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(79,124,255,.95), rgba(34,197,94,.85));
+  box-shadow:0 10px 24px rgba(79,124,255,.15);
+}
+
 .nav{
   position:fixed; left:0; right:0; bottom:0;
   padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);
@@ -144,15 +169,15 @@ button:active{transform:scale(.985)}
   backdrop-filter:blur(12px);
 }
 .navBar{
-  display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+  display:grid; grid-template-columns:repeat(6,1fr); gap:10px;
   border:1px solid var(--line); border-radius:22px; padding:10px;
   background:rgba(17,24,39,.78); box-shadow:var(--shadow);
 }
 .navBtn{
-  padding:10px 8px;border-radius:18px;
+  padding:10px 6px;border-radius:18px;
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.06);
-  font-weight:1000;font-size:11px;letter-spacing:1px;
+  font-weight:1000;font-size:10px;letter-spacing:1px;
   text-align:center;color:var(--muted);
 }
 .navBtn.active{
@@ -163,7 +188,7 @@ button:active{transform:scale(.985)}
 
 .toast{
   position:fixed; left:50%; transform:translateX(-50%);
-  bottom:calc(env(safe-area-inset-bottom) + 86px);
+  bottom:calc(env(safe-area-inset-bottom) + 100px);
   background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.12);
   padding:10px 12px; border-radius:999px; font-size:13px;
   opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
@@ -171,14 +196,14 @@ button:active{transform:scale(.985)}
 }
 .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
 
-.txItem, .chatItem{
+.txItem, .chatItem, .jobItem{
   border:1px solid var(--line);
   background:rgba(0,0,0,.16);
   border-radius:16px;
   padding:12px;
   margin-top:10px;
 }
-.txTop, .chatTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.txTop, .chatTop, .jobTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .amtIn{color:var(--good);font-weight:1000}
 .amtOut{color:var(--bad);font-weight:1000}
 .msgBubble{
@@ -191,6 +216,9 @@ button:active{transform:scale(.985)}
 .msgMe{background:rgba(79,124,255,.18); border-color:rgba(79,124,255,.28)}
 .pfpRow{display:flex;gap:12px;align-items:center}
 .pfpImg{width:54px;height:54px;border-radius:18px;object-fit:cover;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+.badge{font-size:11px;padding:6px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.badgeOk{color:var(--good);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+.locked{opacity:.65}
 </style>
 </head>
 
@@ -208,7 +236,7 @@ button:active{transform:scale(.985)}
   </div>
 </div>
 
-<div class="safe wrap">
+<div class="safe">
 
   <!-- AUTH -->
   <div class="card" id="authCard">
@@ -220,8 +248,8 @@ button:active{transform:scale(.985)}
     <input id="authPass" type="password" placeholder="password" autocomplete="off" />
 
     <div class="row" style="margin-top:10px">
-      <button class="col" onclick="doLogin()">login</button>
-      <button class="col btnGhost" onclick="doSignup()">signup</button>
+      <button onclick="doLogin()">login</button>
+      <button class="btnGhost" onclick="doSignup()">signup</button>
     </div>
 
     <div class="small" style="margin-top:10px">tip: add to home screen for iOS / Android app feel</div>
@@ -241,6 +269,12 @@ button:active{transform:scale(.985)}
         <div class="subMoney">balance</div>
         <div class="bigMoney" id="bal">0.00 CD</div>
         <div class="subMoney" id="lvl">level 1 • +0.05 per tap</div>
+
+        <!-- BIG LEVEL BAR -->
+        <div style="margin-top:12px;text-align:left">
+          <div class="small muted" id="lvlBarText">LEVEL 1 • 0/1000 to next level</div>
+          <div class="lvlTrack"><div class="lvlFill" id="lvlFill"></div></div>
+        </div>
 
         <div class="kpi">
           <div class="box"><div class="k">taps</div><div class="v" id="taps">0</div></div>
@@ -266,6 +300,12 @@ button:active{transform:scale(.985)}
           </button>
         </div>
       </div>
+
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">active job</div>
+        <div class="small" id="jobLine">no job selected</div>
+        <div class="small muted" id="jobPayLine">—</div>
+      </div>
     </div>
 
     <!-- SEND -->
@@ -281,7 +321,7 @@ button:active{transform:scale(.985)}
       </div>
     </div>
 
-    <!-- TRANSACTIONS -->
+    <!-- TXNS -->
     <div id="page-tx" class="page">
       <div class="card">
         <div style="font-weight:1000;letter-spacing:1px">transactions</div>
@@ -292,7 +332,7 @@ button:active{transform:scale(.985)}
       </div>
     </div>
 
-    <!-- MESSAGES -->
+    <!-- CHAT -->
     <div id="page-chat" class="page">
       <div class="card">
         <div style="font-weight:1000;letter-spacing:1px">messages</div>
@@ -310,7 +350,18 @@ button:active{transform:scale(.985)}
       </div>
     </div>
 
-    <!-- PROFILE -->
+    <!-- JOBS -->
+    <div id="page-jobs" class="page">
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">jobs</div>
+        <div class="small" style="margin-top:6px">unlock by taps • pays hourly (cap per day)</div>
+        <div class="sep"></div>
+        <div class="small muted" id="jobsStatus">loading…</div>
+        <div id="jobsList"></div>
+      </div>
+    </div>
+
+    <!-- ME -->
     <div id="page-me" class="page">
       <div class="card">
         <div style="font-weight:1000;letter-spacing:1px">profile</div>
@@ -319,7 +370,7 @@ button:active{transform:scale(.985)}
 
         <div class="pfpRow">
           <img id="pfpImg" class="pfpImg" src="" alt="">
-          <div class="col">
+          <div style="flex:1">
             <div class="small muted">profile pic url</div>
             <input id="pfpUrl" placeholder="https://..." autocomplete="off">
             <button class="btnGhost" onclick="savePfp()">save</button>
@@ -348,6 +399,7 @@ button:active{transform:scale(.985)}
     <div class="navBtn" id="nav-send" onclick="go('send')">SEND</div>
     <div class="navBtn" id="nav-tx" onclick="go('tx')">TXNS</div>
     <div class="navBtn" id="nav-chat" onclick="go('chat')">CHAT</div>
+    <div class="navBtn" id="nav-jobs" onclick="go('jobs')">JOBS</div>
     <div class="navBtn" id="nav-me" onclick="go('me')">ME</div>
   </div>
 </div>
@@ -355,7 +407,7 @@ button:active{transform:scale(.985)}
 <div class="toast" id="toast">—</div>
 
 <script>
-/* hard block zoom (best-effort) */
+/* best-effort zoom lock */
 document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('gesturechange', e => e.preventDefault());
 document.addEventListener('gestureend', e => e.preventDefault());
@@ -373,24 +425,30 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* economy in cents */
+/* economy cents */
 const TAP_BASE_CENTS = 5;          // 0.05
 const MINI_CENTS = 50;             // 0.50
 const BIG_CENTS  = 15;             // 0.15
 const MINI_CD_MS = 60 * 1000;      // 1 min
 const BIG_CD_MS  = 2 * 60 * 60 * 1000; // 2 hours
 
-const LS_USER = "chowdolla_user_v3";
-const LS_HASH = "chowdolla_hash_v3";
+/* jobs: £/hour and hours/day cap */
+const JOBS = [
+  { id:"none",     name:"No Job",   reqTaps:0,    payPerHourGBP:0.00, hoursPerDay:0,  note:"no pay" },
+  { id:"cleaner",  name:"Cleaner",  reqTaps:100,  payPerHourGBP:6.50, hoursPerDay:6,  note:"steady shift" },
+  { id:"cashier",  name:"Cashier",  reqTaps:250,  payPerHourGBP:6.50, hoursPerDay:6,  note:"customer grind" },
+  { id:"barista",  name:"Barista",  reqTaps:400,  payPerHourGBP:6.75, hoursPerDay:7,  note:"coffee rush" },
+  { id:"chef",     name:"Chef",     reqTaps:500,  payPerHourGBP:7.25, hoursPerDay:8,  note:"full shift" },
+  { id:"driver",   name:"Driver",   reqTaps:800,  payPerHourGBP:7.00, hoursPerDay:7,  note:"on the road" }
+];
 
-let me = null;
-let meHash = null;
-let meDoc = null;
+/* session */
+const LS_USER = "chowdolla_user_v4";
+const LS_HASH = "chowdolla_hash_v4";
 
-let unsubUser = null;
-let unsubTx = null;
-let unsubChat = null;
-let timer = null;
+let me=null, meHash=null, meDoc=null;
+let unsubUser=null, unsubTx=null, unsubChat=null;
+let timer=null, jobTimer=null;
 
 const $ = (id)=>document.getElementById(id);
 
@@ -434,6 +492,13 @@ async function sha256Hex(str){
   const buf = await crypto.subtle.digest("SHA-256", enc);
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
+function dayKey(ts){
+  const d = new Date(ts);
+  return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate());
+}
+function getJob(jobId){
+  return JOBS.find(j=>j.id===jobId) || JOBS[0];
+}
 
 function showApp(){
   $("authCard").classList.add("hidden");
@@ -460,16 +525,20 @@ async function doSignup(){
   await ref.set({
     pwHash: hash,
     isAdmin: (u === "chowibz"),
-    balanceCents: 10000, // 100.00
+    balanceCents: 10000,
     taps: 0,
     level: 1,
     nextMini: 0,
     nextBig: 0,
     pfp: "",
+    job: "none",
+    jobLastPaid: 0,
+    jobDayKey: "",
+    jobHoursPaidToday: 0,
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  me = u; meHash = hash;
+  me=u; meHash=hash;
   localStorage.setItem(LS_USER, me);
   localStorage.setItem(LS_HASH, meHash);
   start();
@@ -490,7 +559,7 @@ async function doLogin(){
   const d = snap.data();
   if((d.pwHash||"") !== hash) return toast("wrong password");
 
-  me = u; meHash = hash;
+  me=u; meHash=hash;
   localStorage.setItem(LS_USER, me);
   localStorage.setItem(LS_HASH, meHash);
   start();
@@ -498,17 +567,18 @@ async function doLogin(){
 }
 
 function stopSubs(){
-  if(unsubUser) unsubUser(); unsubUser = null;
-  if(unsubTx) unsubTx(); unsubTx = null;
-  if(unsubChat) unsubChat(); unsubChat = null;
-  if(timer) clearInterval(timer); timer = null;
+  if(unsubUser) unsubUser(); unsubUser=null;
+  if(unsubTx) unsubTx(); unsubTx=null;
+  if(unsubChat) unsubChat(); unsubChat=null;
+  if(timer) clearInterval(timer); timer=null;
+  if(jobTimer) clearInterval(jobTimer); jobTimer=null;
 }
 
 function start(){
   stopSubs();
   showApp();
-  $("who").textContent = "@"+me;
-  $("profLine").textContent = "@"+me+" • ChowDolla player";
+  $("who").textContent="@"+me;
+  $("profLine").textContent="@"+me+" • ChowDolla player";
 
   const userRef = db.collection("users").doc(me);
 
@@ -526,12 +596,26 @@ function start(){
     $("taps").textContent = Math.floor(taps).toLocaleString("en-GB");
     $("perTap").textContent = "+" + (ptC/100).toFixed(2);
 
+    const intoLevel = Math.floor(taps) % 1000;
+    const pct = Math.max(0, Math.min(100, (intoLevel/1000)*100));
+    $("lvlFill").style.width = pct + "%";
+    $("lvlBarText").textContent = `LEVEL ${lvl} • ${intoLevel}/1000 to next level`;
+
     const pfp = (meDoc.pfp||"").trim();
     $("pfpImg").src = pfp || "";
     $("pfpUrl").value = pfp;
 
-    const isAdminOk = (me === "chowibz") && (meDoc.isAdmin === true) && ((meDoc.pwHash||"") === meHash);
+    const isAdminOk = (me === "chowibz") && (meDoc.isAdmin===true) && ((meDoc.pwHash||"")===meHash);
     $("adminCard").classList.toggle("hidden", !isAdminOk);
+
+    // job lines
+    const job = getJob(meDoc.job||"none");
+    $("jobLine").textContent = job.id==="none" ? "no job selected" : `${job.name} • unlock ${job.reqTaps} taps`;
+    $("jobPayLine").textContent = job.id==="none"
+      ? "pick a job in JOBS tab"
+      : `pays £${job.payPerHourGBP.toFixed(2)}/hour • ${job.hoursPerDay} hours/day max`;
+
+    renderJobsUI(); // keep jobs page fresh too
 
     setStatus(true);
     renderTimers();
@@ -540,23 +624,29 @@ function start(){
     setStatus(false);
   });
 
-  // transactions feed
+  // TXNS: no orderBy (avoids composite index), sort client-side
   unsubTx = db.collection("transactions")
     .where("participants","array-contains", me)
-    .orderBy("ts","desc")
     .limit(50)
     .onSnapshot(snap=>{
-      $("txStatus").textContent = snap.empty ? "no transactions yet" : "live";
-      const box = $("txList");
-      box.innerHTML = "";
+      const rows=[];
       snap.forEach(doc=>{
-        const t = doc.data();
-        const incoming = (t.to === me);
+        const t=doc.data();
+        const ts = t.ts?.toMillis ? t.ts.toMillis() : 0;
+        rows.push({ ...t, __ts: ts });
+      });
+      rows.sort((a,b)=>b.__ts-a.__ts);
+
+      $("txStatus").textContent = rows.length ? "live" : "no transactions yet";
+      const box=$("txList");
+      box.innerHTML="";
+      rows.forEach(t=>{
+        const incoming = (t.to===me);
         const amt = centsToStr(t.amountCents||0);
         const when = t.ts?.toDate ? t.ts.toDate().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
-        const el = document.createElement("div");
-        el.className = "txItem";
-        el.innerHTML = `
+        const el=document.createElement("div");
+        el.className="txItem";
+        el.innerHTML=`
           <div class="txTop">
             <div style="font-weight:1000">${incoming ? `from @${t.from}` : `to @${t.to}`}</div>
             <div class="${incoming ? "amtIn":"amtOut"}">${incoming?"+":"-"}${amt} CD</div>
@@ -567,39 +657,46 @@ function start(){
       });
     }, err=>{
       console.error(err);
-      $("txStatus").textContent = "can’t load (index/rules)";
+      $("txStatus").textContent="can’t load";
     });
 
-  // messages feed (latest 50 involving me)
+  // CHAT: no orderBy (avoids index), sort client-side
   unsubChat = db.collection("messages")
     .where("participants","array-contains", me)
-    .orderBy("ts","desc")
     .limit(50)
     .onSnapshot(snap=>{
-      const box = $("chatList");
-      box.innerHTML = "";
-      if(snap.empty){
-        box.innerHTML = `<div class="small muted">no messages yet</div>`;
-        return;
-      }
+      const rows=[];
       snap.forEach(doc=>{
-        const m = doc.data();
-        const mine = (m.from === me);
-        const when = m.ts?.toDate ? m.ts.toDate().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
-        const el = document.createElement("div");
-        el.className = "chatItem";
-        el.innerHTML = `
+        const m=doc.data();
+        const ts = m.ts?.toMillis ? m.ts.toMillis() : 0;
+        rows.push({ ...m, __ts: ts });
+      });
+      rows.sort((a,b)=>b.__ts-a.__ts);
+
+      const box=$("chatList");
+      box.innerHTML = rows.length ? "" : `<div class="small muted">no messages yet</div>`;
+      rows.forEach(m=>{
+        const mine=(m.from===me);
+        const when=m.ts?.toDate ? m.ts.toDate().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        const el=document.createElement("div");
+        el.className="chatItem";
+        el.innerHTML=`
           <div class="chatTop">
             <div style="font-weight:1000">${mine ? `to @${m.to}` : `from @${m.from}`}</div>
             <div class="small">${when}</div>
           </div>
-          <div class="msgBubble ${mine ? "msgMe":""}">${(m.text||"").replace(/</g,"&lt;")}</div>
+          <div class="msgBubble ${mine?"msgMe":""}">${(m.text||"").replace(/</g,"&lt;")}</div>
         `;
         box.appendChild(el);
       });
     });
-    
-  timer = setInterval(renderTimers, 250);
+
+  timer=setInterval(renderTimers, 250);
+
+  // job pay check every 60s (does nothing if not due)
+  jobTimer=setInterval(processJobPay, 60*1000);
+  processJobPay();
+
   go("bank");
 }
 
@@ -607,29 +704,30 @@ function logout(){
   stopSubs();
   localStorage.removeItem(LS_USER);
   localStorage.removeItem(LS_HASH);
-  me = null; meHash = null; meDoc = null;
+  me=null; meHash=null; meDoc=null;
   showAuth();
   toast("logged out");
 }
 
 function go(p){
-  ["bank","send","tx","chat","me"].forEach(x=>{
+  ["bank","send","tx","chat","jobs","me"].forEach(x=>{
     $("page-"+x).classList.toggle("active", x===p);
     $("nav-"+x).classList.toggle("active", x===p);
   });
+  if(p==="jobs") renderJobsUI();
 }
 
 function renderTimers(){
   if(!meDoc) return;
-  const n = now();
-  const leftMini = Number(meDoc.nextMini||0) - n;
-  const leftBig = Number(meDoc.nextBig||0) - n;
+  const n=now();
+  const leftMini=Number(meDoc.nextMini||0)-n;
+  const leftBig=Number(meDoc.nextBig||0)-n;
 
-  const readyMini = leftMini <= 0;
-  const readyBig = leftBig <= 0;
+  const readyMini=leftMini<=0;
+  const readyBig=leftBig<=0;
 
   $("tMini").textContent = readyMini ? "READY" : msToMMSS(leftMini);
-  $("tBig").textContent = readyBig ? "READY" : msToMMSS(leftBig);
+  $("tBig").textContent  = readyBig  ? "READY" : msToMMSS(leftBig);
 
   $("btnMini").classList.toggle("ready", readyMini);
   $("btnMini").classList.toggle("locked", !readyMini);
@@ -639,17 +737,17 @@ function renderTimers(){
 
 async function tap(){
   if(!me || !meDoc) return;
-  const ref = db.collection("users").doc(me);
+  const ref=db.collection("users").doc(me);
   try{
     await db.runTransaction(async tx=>{
-      const snap = await tx.get(ref);
+      const snap=await tx.get(ref);
       if(!snap.exists) throw "missing";
-      const d = snap.data();
-      const taps = Math.floor(Number(d.taps||0)) + 1;
-      const level = calcLevel(taps);
-      const earnC = perTapCents(level);
-      const balanceCents = Math.floor(Number(d.balanceCents||0)) + earnC;
-      tx.update(ref, { taps, level, balanceCents });
+      const d=snap.data();
+      const taps=Math.floor(Number(d.taps||0))+1;
+      const level=calcLevel(taps);
+      const earnC=perTapCents(level);
+      const balanceCents=Math.floor(Number(d.balanceCents||0))+earnC;
+      tx.update(ref,{taps,level,balanceCents});
     });
   }catch(e){
     console.error(e);
@@ -657,25 +755,22 @@ async function tap(){
   }
 }
 
-async function claimMini(){
-  return claimCommon("nextMini", MINI_CD_MS, MINI_CENTS);
-}
-async function claimBig(){
-  return claimCommon("nextBig", BIG_CD_MS, BIG_CENTS);
-}
+async function claimMini(){ return claimCommon("nextMini", MINI_CD_MS, MINI_CENTS); }
+async function claimBig(){ return claimCommon("nextBig", BIG_CD_MS, BIG_CENTS); }
+
 async function claimCommon(field, cooldownMs, amountCents){
   if(!me || !meDoc) return;
-  const ref = db.collection("users").doc(me);
+  const ref=db.collection("users").doc(me);
   try{
     await db.runTransaction(async tx=>{
-      const snap = await tx.get(ref);
+      const snap=await tx.get(ref);
       if(!snap.exists) throw "missing";
-      const d = snap.data();
-      const n = now();
-      const next = Number(d[field]||0);
-      if(next > n) throw "not ready";
-      const balanceCents = Math.floor(Number(d.balanceCents||0)) + amountCents;
-      tx.update(ref, { balanceCents, [field]: n + cooldownMs });
+      const d=snap.data();
+      const n=now();
+      const next=Number(d[field]||0);
+      if(next>n) throw "not ready";
+      const balanceCents=Math.floor(Number(d.balanceCents||0))+amountCents;
+      tx.update(ref,{balanceCents,[field]:n+cooldownMs});
     });
     toast("claimed +" + (amountCents/100).toFixed(2));
   }catch(e){
@@ -688,48 +783,46 @@ async function claimCommon(field, cooldownMs, amountCents){
 async function sendTransfer(){
   if(!me || !meDoc) return;
 
-  const to = cleanUser($("toUser").value);
-  const amtC = parseToCents($("amt").value);
-  $("transferHint").textContent = "";
+  const to=cleanUser($("toUser").value);
+  const amtC=parseToCents($("amt").value);
+  $("transferHint").textContent="";
 
   if(!to) return toast("enter username");
-  if(to === me) return toast("cant send to yourself");
-  if(amtC === null || amtC <= 0) return toast("enter amount");
-  if(Number(meDoc.balanceCents||0) < amtC) return toast("not enough");
+  if(to===me) return toast("cant send to yourself");
+  if(amtC===null || amtC<=0) return toast("enter amount");
+  if(Number(meDoc.balanceCents||0)<amtC) return toast("not enough");
 
-  const fromRef = db.collection("users").doc(me);
-  const toRef = db.collection("users").doc(to);
+  const fromRef=db.collection("users").doc(me);
+  const toRef=db.collection("users").doc(to);
 
   try{
     await db.runTransaction(async tx=>{
-      const fromSnap = await tx.get(fromRef);
-      const toSnap = await tx.get(toRef);
+      const fromSnap=await tx.get(fromRef);
+      const toSnap=await tx.get(toRef);
       if(!fromSnap.exists) throw "missing sender";
       if(!toSnap.exists) throw "user not found";
 
-      const fromBal = Math.floor(Number(fromSnap.data().balanceCents||0));
-      const toBal = Math.floor(Number(toSnap.data().balanceCents||0));
-      if(fromBal < amtC) throw "no funds";
+      const fromBal=Math.floor(Number(fromSnap.data().balanceCents||0));
+      const toBal=Math.floor(Number(toSnap.data().balanceCents||0));
+      if(fromBal<amtC) throw "no funds";
 
-      tx.update(fromRef, { balanceCents: fromBal - amtC });
-      tx.update(toRef, { balanceCents: toBal + amtC });
+      tx.update(fromRef,{balanceCents:fromBal-amtC});
+      tx.update(toRef,{balanceCents:toBal+amtC});
     });
 
-    // log transaction
     await db.collection("transactions").add({
-      from: me,
-      to: to,
-      participants: [me, to],
-      amountCents: amtC,
-      ts: firebase.firestore.FieldValue.serverTimestamp()
+      from:me,to,
+      participants:[me,to],
+      amountCents:amtC,
+      ts:firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    $("amt").value = "";
+    $("amt").value="";
     toast("sent " + (amtC/100).toFixed(2) + " to @" + to);
   }catch(e){
     console.error(e);
     if(String(e).includes("user not found")){
-      $("transferHint").textContent = "user doesn’t exist yet. they must signup first";
+      $("transferHint").textContent="user doesn’t exist yet. they must signup first";
       return toast("user not found");
     }
     toast("transfer failed");
@@ -739,63 +832,209 @@ async function sendTransfer(){
 async function sendMessage(){
   if(!me || !meDoc) return;
 
-  const to = cleanUser($("chatTo").value);
-  const text = ($("chatText").value||"").trim();
-  $("chatHint").textContent = "";
+  const to=cleanUser($("chatTo").value);
+  const text=($("chatText").value||"").trim();
+  $("chatHint").textContent="";
 
   if(!to) return toast("enter username");
   if(!text) return toast("type message");
-  if(text.length > 300) return toast("too long");
+  if(text.length>300) return toast("too long");
 
   const toSnap = await db.collection("users").doc(to).get();
   if(!toSnap.exists){
-    $("chatHint").textContent = "user doesn’t exist yet. they must signup first";
+    $("chatHint").textContent="user doesn’t exist yet. they must signup first";
     return toast("user not found");
   }
 
   await db.collection("messages").add({
-    from: me,
-    to: to,
-    participants: [me, to],
-    text: text,
-    ts: firebase.firestore.FieldValue.serverTimestamp()
+    from:me,to,
+    participants:[me,to],
+    text,
+    ts:firebase.firestore.FieldValue.serverTimestamp()
   });
 
-  $("chatText").value = "";
+  $("chatText").value="";
   toast("sent");
 }
 
 async function savePfp(){
   if(!me) return;
-  const url = ($("pfpUrl").value||"").trim();
-  // allow empty to clear
-  await db.collection("users").doc(me).update({ pfp: url });
+  const url=($("pfpUrl").value||"").trim();
+  await db.collection("users").doc(me).update({pfp:url});
   toast("saved");
 }
 
 async function adminSetBalance(){
-  if(me !== "chowibz" || !meDoc || meDoc.isAdmin !== true || (meDoc.pwHash||"") !== meHash) return toast("nope");
-  const newC = parseToCents($("setBal").value);
-  if(newC === null || newC < 0) return toast("bad number");
-  await db.collection("users").doc(me).update({ balanceCents: newC });
-  $("setBal").value = "";
+  if(me!=="chowibz" || !meDoc || meDoc.isAdmin!==true || (meDoc.pwHash||"")!==meHash) return toast("nope");
+  const newC=parseToCents($("setBal").value);
+  if(newC===null || newC<0) return toast("bad number");
+  await db.collection("users").doc(me).update({balanceCents:newC});
+  $("setBal").value="";
   toast("updated");
+}
+
+/* JOBS UI + SELECT */
+function renderJobsUI(){
+  if(!meDoc){ $("jobsStatus").textContent="loading…"; return; }
+  const taps = Math.floor(Number(meDoc.taps||0));
+  const current = (meDoc.job||"none");
+  $("jobsStatus").textContent = `you have ${taps} taps`;
+
+  const box=$("jobsList");
+  box.innerHTML="";
+
+  JOBS.forEach(j=>{
+    if(j.id==="none") return;
+
+    const unlocked = taps >= j.reqTaps;
+    const active = current === j.id;
+    const el=document.createElement("div");
+    el.className = "jobItem" + (unlocked ? "" : " locked");
+
+    el.innerHTML = `
+      <div class="jobTop">
+        <div style="font-weight:1000">${j.name}</div>
+        <div class="badge ${active ? "badgeOk":""}">${active ? "ACTIVE" : (unlocked ? "UNLOCKED" : "LOCKED")}</div>
+      </div>
+      <div class="small" style="margin-top:6px">requires: ${j.reqTaps} taps</div>
+      <div class="small">pay: £${j.payPerHourGBP.toFixed(2)}/hour • ${j.hoursPerDay} hours/day</div>
+      <div class="small muted">${j.note}</div>
+      <div style="margin-top:10px;display:flex;gap:10px">
+        <button class="${active?"btnGhost":""}" style="flex:1" ${unlocked?"":"disabled"} onclick="setJob('${j.id}')">
+          ${active ? "selected" : (unlocked ? "choose job" : "need more taps")}
+        </button>
+      </div>
+    `;
+    box.appendChild(el);
+  });
+
+  // clear job card
+  const clear=document.createElement("div");
+  clear.className="jobItem";
+  clear.innerHTML=`
+    <div class="jobTop">
+      <div style="font-weight:1000">No Job</div>
+      <div class="badge ${(current==="none")?"badgeOk":""}">${(current==="none")?"ACTIVE":""}</div>
+    </div>
+    <div class="small" style="margin-top:6px">pay: £0.00/hour</div>
+    <div style="margin-top:10px">
+      <button class="${(current==="none")?"btnGhost":""}" onclick="setJob('none')">${(current==="none")?"selected":"clear job"}</button>
+    </div>
+  `;
+  box.appendChild(clear);
+}
+
+async function setJob(jobId){
+  if(!me || !meDoc) return;
+
+  const taps = Math.floor(Number(meDoc.taps||0));
+  const job = getJob(jobId);
+  if(jobId !== "none" && taps < job.reqTaps) return toast("not unlocked");
+
+  await db.collection("users").doc(me).update({
+    job: jobId,
+    jobLastPaid: 0,
+    jobDayKey: "",
+    jobHoursPaidToday: 0
+  });
+  toast("job set");
+}
+
+/* AUTO JOB PAY */
+async function processJobPay(){
+  if(!me || !meDoc) return;
+
+  const jobId = meDoc.job || "none";
+  const job = getJob(jobId);
+  if(job.id === "none" || job.payPerHourGBP <= 0 || job.hoursPerDay <= 0) return;
+
+  const ref = db.collection("users").doc(me);
+  const payCents = Math.floor(job.payPerHourGBP * 100);
+
+  try{
+    await db.runTransaction(async tx=>{
+      const snap = await tx.get(ref);
+      if(!snap.exists) return;
+      const d = snap.data();
+
+      const dkNow = dayKey(now());
+      let dk = d.jobDayKey || "";
+      let hoursPaid = Math.floor(Number(d.jobHoursPaidToday||0));
+      let lastPaid = Math.floor(Number(d.jobLastPaid||0));
+
+      // reset day
+      if(dk !== dkNow){
+        dk = dkNow;
+        hoursPaid = 0;
+        lastPaid = 0;
+      }
+
+      // how many whole hours elapsed since lastPaid
+      const n = now();
+      const base = lastPaid > 0 ? lastPaid : n; // start counting from now if never paid
+      const hoursElapsed = Math.floor((n - base) / (60*60*1000));
+
+      if(hoursElapsed <= 0) {
+        // if never paid, set baseline so it starts counting
+        if(lastPaid === 0){
+          tx.update(ref, { jobDayKey: dk, jobHoursPaidToday: hoursPaid, jobLastPaid: n });
+        }
+        return;
+      }
+
+      const remaining = Math.max(0, job.hoursPerDay - hoursPaid);
+      const payHours = Math.min(remaining, hoursElapsed);
+      if(payHours <= 0){
+        // update lastPaid forward to avoid infinite checking
+        tx.update(ref, { jobDayKey: dk, jobHoursPaidToday: hoursPaid, jobLastPaid: base + hoursElapsed*(60*60*1000) });
+        return;
+      }
+
+      const add = payHours * payCents;
+      const newBal = Math.floor(Number(d.balanceCents||0)) + add;
+      const newHours = hoursPaid + payHours;
+      const newLast = base + payHours*(60*60*1000);
+
+      tx.update(ref, {
+        balanceCents: newBal,
+        jobDayKey: dk,
+        jobHoursPaidToday: newHours,
+        jobLastPaid: newLast
+      });
+    });
+  }catch(e){
+    console.error(e);
+  }
 }
 
 /* restore session */
 (async function boot(){
-  const u = localStorage.getItem(LS_USER);
-  const h = localStorage.getItem(LS_HASH);
+  const u=localStorage.getItem(LS_USER);
+  const h=localStorage.getItem(LS_HASH);
   if(!u || !h) return;
 
-  const snap = await db.collection("users").doc(u).get().catch(()=>null);
+  const snap=await db.collection("users").doc(u).get().catch(()=>null);
   if(!snap || !snap.exists) return;
-  const d = snap.data();
-  if((d.pwHash||"") !== h) return;
+  const d=snap.data();
+  if((d.pwHash||"")!==h) return;
 
-  me = u; meHash = h;
+  me=u; meHash=h;
   start();
 })();
+
+/* bind functions to window for button onclick */
+window.doLogin=doLogin;
+window.doSignup=doSignup;
+window.logout=logout;
+window.go=go;
+window.tap=tap;
+window.claimMini=claimMini;
+window.claimBig=claimBig;
+window.sendTransfer=sendTransfer;
+window.sendMessage=sendMessage;
+window.savePfp=savePfp;
+window.adminSetBalance=adminSetBalance;
+window.setJob=setJob;
 </script>
 
 </body>
