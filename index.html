@@ -1,91 +1,367 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#0b0f14" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="ChowDolla" />
 <title>ChowDolla</title>
 
-<!-- PWA -->
-<meta name="theme-color" content="#0b0f14">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-body{margin:0;background:#0b0f14;color:#fff;font-family:system-ui}
+:root{
+  --bg:#0b0f14; --panel:#111827; --panel2:#0f172a; --text:#e9eef7;
+  --muted:rgba(233,238,247,.6); --line:rgba(255,255,255,.08);
+  --brand:#4f7cff; --good:#22c55e; --bad:#ef4444; --gold:#fbbf24;
+  --shadow:0 18px 50px rgba(0,0,0,.45); --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 20% 0%, #141f34 0%, var(--bg) 60%),
+    radial-gradient(900px 600px at 90% 10%, #1c1236 0%, transparent 55%),
+    var(--bg);
+  overflow:hidden;
+  touch-action: manipulation;
+}
 .hidden{display:none}
-.card{margin:14px;padding:14px;background:#121827;border-radius:16px}
-input,button{width:100%;padding:12px;border-radius:12px;border:none;margin-top:8px}
-button{background:#4f7cff;color:#fff;font-weight:700}
-.nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#0f1520}
-.nav button{flex:1;border-radius:0}
-.chat{border-top:1px solid #222;padding-top:8px;margin-top:8px}
-.msg{padding:6px;margin:4px 0;border-radius:8px;background:#1b2233}
-.me{background:#4f7cff}
+.safe{
+  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 88px);
+  height:100%; overflow:auto; overscroll-behavior:none;
+}
+.topbar{
+  position:sticky; top:0; z-index:10;
+  padding:10px 10px 14px;
+  background:linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.65), rgba(11,15,20,0));
+  backdrop-filter:blur(12px);
+}
+.brandWrap{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:linear-gradient(180deg, rgba(17,24,39,.95), rgba(17,24,39,.62));
+  box-shadow:var(--shadow); padding:12px;
+}
+.brandLeft{display:flex; align-items:center; gap:10px}
+.logo{
+  width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%, #8aa9ff 0%, var(--brand) 35%, #2a45b0 100%);
+  box-shadow:0 12px 28px rgba(79,124,255,.22), inset 0 0 0 1px rgba(255,255,255,.14);
+  font-weight:1000; letter-spacing:.5px;
+}
+.brandTxt{display:flex;flex-direction:column;gap:2px}
+.brandTxt .t{font-weight:1000;letter-spacing:2px;font-size:15px}
+.brandTxt .s{font-size:11px;color:var(--muted);letter-spacing:1px}
+.pill{
+  font-size:11px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(0,0,0,.18);color:var(--muted);white-space:nowrap;
+}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin:12px 0;
+}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.center{text-align:center}
+.small{font-size:12px;color:var(--muted)}
+.muted{color:var(--muted)}
+.row{display:flex; gap:10px; align-items:center}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.18);
+  color:var(--text);
+  outline:none;
+  font-size:16px;
+}
+button{
+  border:none;
+  border-radius:16px;
+  padding:12px 12px;
+  font-size:16px;
+  font-weight:1000;
+  color:var(--text);
+  background:rgba(79,124,255,.92);
+  box-shadow:0 10px 24px rgba(79,124,255,.18);
+  transition:transform .08s ease, opacity .2s ease;
+  user-select:none;
+}
+button:active{transform:scale(.985)}
+.btnGhost{background:rgba(255,255,255,.06);box-shadow:none;border:1px solid var(--line)}
+.btnBad{background:rgba(239,68,68,.92);box-shadow:0 10px 24px rgba(239,68,68,.15)}
+.btnGold{background:rgba(251,191,36,.92);color:#101010;box-shadow:0 10px 24px rgba(251,191,36,.15)}
+
+.page{display:none;animation:fadeIn .18s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.bigMoney{font-size:36px;font-weight:1000;letter-spacing:1px;margin:6px 0 0}
+.subMoney{font-size:12px;color:var(--muted);letter-spacing:1px}
+.kpi{display:flex;gap:10px;margin-top:10px}
+.kpi .box{flex:1;border:1px solid var(--line);background:rgba(0,0,0,.16);border-radius:16px;padding:10px}
+.kpi .k{font-size:11px;color:var(--muted);letter-spacing:1px}
+.kpi .v{margin-top:2px;font-weight:1000;font-size:16px}
+
+.arcadeZone{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:12px;align-items:center;margin-top:12px}
+.arcadeBtn{
+  border-radius:22px; padding:14px 10px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+.arcadeBtn .aT{font-size:12px;letter-spacing:1px;color:var(--muted)}
+.arcadeBtn .aV{font-size:18px;font-weight:1000;margin-top:2px}
+.arcadeBtn.ready{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.35)}
+.arcadeBtn.ready .aV{color:var(--good)}
+.arcadeBtn.locked{opacity:.85}
+
+.tapCore{
+  width:168px;height:168px;border-radius:999px;margin:0 auto;
+  display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%, rgba(34,197,94,.95), rgba(34,197,94,.7), rgba(16,185,129,.55));
+  box-shadow:0 18px 40px rgba(34,197,94,.18), inset 0 0 0 1px rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.12);
+  font-size:40px;font-weight:1000;letter-spacing:.5px;
+  user-select:none;cursor:pointer;transition:transform .07s ease;
+}
+.tapCore:active{transform:scale(.985)}
+.tapHint{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:1px}
+
+.nav{
+  position:fixed; left:0; right:0; bottom:0;
+  padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);
+  background:linear-gradient(180deg, rgba(11,15,20,0), rgba(11,15,20,.65), rgba(11,15,20,.92));
+  backdrop-filter:blur(12px);
+}
+.navBar{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+  border:1px solid var(--line); border-radius:22px; padding:10px;
+  background:rgba(17,24,39,.78); box-shadow:var(--shadow);
+}
+.navBtn{
+  padding:10px 8px;border-radius:18px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.06);
+  font-weight:1000;font-size:11px;letter-spacing:1px;
+  text-align:center;color:var(--muted);
+}
+.navBtn.active{
+  background:rgba(79,124,255,.18);
+  border-color:rgba(79,124,255,.28);
+  color:var(--text);
+}
+
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom) + 86px);
+  background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.12);
+  padding:10px 12px; border-radius:999px; font-size:13px;
+  opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+  backdrop-filter:blur(12px); z-index:999;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
+
+.txItem, .chatItem{
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.16);
+  border-radius:16px;
+  padding:12px;
+  margin-top:10px;
+}
+.txTop, .chatTop{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.amtIn{color:var(--good);font-weight:1000}
+.amtOut{color:var(--bad);font-weight:1000}
+.msgBubble{
+  margin-top:8px;
+  padding:10px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.05);
+}
+.msgMe{background:rgba(79,124,255,.18); border-color:rgba(79,124,255,.28)}
+.pfpRow{display:flex;gap:12px;align-items:center}
+.pfpImg{width:54px;height:54px;border-radius:18px;object-fit:cover;border:1px solid var(--line);background:rgba(255,255,255,.06)}
 </style>
 </head>
 
 <body>
-
-<div id="login" class="card">
-  <h2>ChowDolla</h2>
-  <input id="lu" placeholder="username">
-  <input id="lp" type="password" placeholder="password">
-  <button onclick="signup()">Sign up</button>
-  <button onclick="login()">Login</button>
+<div class="topbar">
+  <div class="brandWrap">
+    <div class="brandLeft">
+      <div class="logo">CD</div>
+      <div class="brandTxt">
+        <div class="t">CHOWDOLLA</div>
+        <div class="s">FAKE BANK GAME • NO REAL MONEY</div>
+      </div>
+    </div>
+    <div class="pill" id="pillStatus">offline</div>
+  </div>
 </div>
 
-<div id="app" class="hidden">
+<div class="safe wrap">
 
-  <div class="card">
-    <b id="userTag"></b><br>
-    Balance: <span id="bal"></span><br>
-    <input id="pfp" placeholder="profile pic URL">
-    <button onclick="savePfp()">Save Profile Pic</button>
-    <img id="pfpImg" style="width:80px;border-radius:50%;margin-top:6px">
+  <!-- AUTH -->
+  <div class="card" id="authCard">
+    <div style="font-weight:1000;letter-spacing:1px;font-size:16px">login / signup</div>
+    <div class="small" style="margin-top:6px">username + password • shared across devices</div>
+    <div class="sep"></div>
+
+    <input id="authUser" placeholder="username e.g. chowibz" autocomplete="off" />
+    <input id="authPass" type="password" placeholder="password" autocomplete="off" />
+
+    <div class="row" style="margin-top:10px">
+      <button class="col" onclick="doLogin()">login</button>
+      <button class="col btnGhost" onclick="doSignup()">signup</button>
+    </div>
+
+    <div class="small" style="margin-top:10px">tip: add to home screen for iOS / Android app feel</div>
   </div>
 
-  <div class="card">
-    <button onclick="tap()">TAP (+0.05)</button>
-    <button onclick="claim()">Claim +0.50</button>
-  </div>
+  <!-- APP -->
+  <div id="app" class="hidden">
 
-  <div class="card">
-    <h3>Transfer</h3>
-    <input id="to" placeholder="to user">
-    <input id="amt" placeholder="amount">
-    <button onclick="send()">Send</button>
-  </div>
+    <!-- BANK -->
+    <div id="page-bank" class="page active">
+      <div class="card center">
+        <div class="muted" style="letter-spacing:1px">welcome</div>
+        <div style="font-weight:1000;font-size:18px;margin-top:2px" id="who">@user</div>
 
-  <div class="card">
-    <h3>Transactions</h3>
-    <div id="txs"></div>
-  </div>
+        <div class="sep"></div>
 
-  <div class="card">
-    <h3>Messages</h3>
-    <input id="chatTo" placeholder="username">
-    <input id="chatMsg" placeholder="message">
-    <button onclick="sendMsg()">Send</button>
-    <div id="msgs" class="chat"></div>
-  </div>
+        <div class="subMoney">balance</div>
+        <div class="bigMoney" id="bal">0.00 CD</div>
+        <div class="subMoney" id="lvl">level 1 • +0.05 per tap</div>
 
-  <div class="card hidden" id="admin">
-    <h3>ADMIN</h3>
-    <input id="setBal" placeholder="new balance">
-    <button onclick="adminSet()">Set Balance</button>
-  </div>
+        <div class="kpi">
+          <div class="box"><div class="k">taps</div><div class="v" id="taps">0</div></div>
+          <div class="box"><div class="k">per tap</div><div class="v" id="perTap">+0.05</div></div>
+        </div>
 
+        <div class="arcadeZone">
+          <button id="btnMini" class="arcadeBtn locked" onclick="claimMini()">
+            <div class="aT">MINI CLAIM</div>
+            <div class="aV">+0.50</div>
+            <div class="aT" id="tMini">00:00</div>
+          </button>
+
+          <div>
+            <div class="tapCore" onclick="tap()">TAP</div>
+            <div class="tapHint">tap to earn • level up every 1000 taps</div>
+          </div>
+
+          <button id="btnBig" class="arcadeBtn locked" onclick="claimBig()">
+            <div class="aT">BIG CLAIM</div>
+            <div class="aV">+0.15</div>
+            <div class="aT" id="tBig">00:00</div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEND -->
+    <div id="page-send" class="page">
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">transfer</div>
+        <div class="small" style="margin-top:6px">send CD to another username (must exist)</div>
+        <div class="sep"></div>
+        <input id="toUser" placeholder="to username" autocomplete="off" />
+        <input id="amt" type="number" inputmode="decimal" placeholder="amount e.g. 1.25" />
+        <button onclick="sendTransfer()">send</button>
+        <div class="small" style="margin-top:10px" id="transferHint"></div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="page-tx" class="page">
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">transactions</div>
+        <div class="small" style="margin-top:6px">your last 50 transfers</div>
+        <div class="sep"></div>
+        <div class="small muted" id="txStatus">loading…</div>
+        <div id="txList"></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="page-chat" class="page">
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">messages</div>
+        <div class="small" style="margin-top:6px">send messages to usernames (must exist)</div>
+        <div class="sep"></div>
+
+        <input id="chatTo" placeholder="to username" autocomplete="off" />
+        <input id="chatText" placeholder="message..." autocomplete="off" />
+        <button onclick="sendMessage()">send</button>
+        <div class="small" style="margin-top:10px" id="chatHint"></div>
+
+        <div class="sep"></div>
+        <div class="small muted">latest 50</div>
+        <div id="chatList"></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-me" class="page">
+      <div class="card">
+        <div style="font-weight:1000;letter-spacing:1px">profile</div>
+        <div class="small" style="margin-top:6px" id="profLine">—</div>
+        <div class="sep"></div>
+
+        <div class="pfpRow">
+          <img id="pfpImg" class="pfpImg" src="" alt="">
+          <div class="col">
+            <div class="small muted">profile pic url</div>
+            <input id="pfpUrl" placeholder="https://..." autocomplete="off">
+            <button class="btnGhost" onclick="savePfp()">save</button>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <button class="btnBad" onclick="logout()">logout</button>
+      </div>
+
+      <div class="card hidden" id="adminCard">
+        <div style="font-weight:1000;letter-spacing:1px">admin (chowibz)</div>
+        <div class="small" style="margin-top:6px">set your balance</div>
+        <div class="sep"></div>
+        <input id="setBal" type="number" inputmode="decimal" placeholder="new balance e.g. 999.99" />
+        <button class="btnGold" onclick="adminSetBalance()">update balance</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <div class="nav hidden" id="nav">
-  <button onclick="logout()">Logout</button>
+  <div class="navBar">
+    <div class="navBtn active" id="nav-bank" onclick="go('bank')">BANK</div>
+    <div class="navBtn" id="nav-send" onclick="go('send')">SEND</div>
+    <div class="navBtn" id="nav-tx" onclick="go('tx')">TXNS</div>
+    <div class="navBtn" id="nav-chat" onclick="go('chat')">CHAT</div>
+    <div class="navBtn" id="nav-me" onclick="go('me')">ME</div>
+  </div>
 </div>
 
+<div class="toast" id="toast">—</div>
+
 <script>
+/* hard block zoom (best-effort) */
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('gestureend', e => e.preventDefault());
+document.addEventListener('touchmove', e => { if(e.scale && e.scale !== 1) e.preventDefault(); }, { passive:false });
+
+/* firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
   authDomain: "chowdolla.firebaseapp.com",
@@ -95,73 +371,432 @@ const firebaseConfig = {
   appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
 };
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+const db = firebase.firestore();
 
-let me=null,doc=null;
+/* economy in cents */
+const TAP_BASE_CENTS = 5;          // 0.05
+const MINI_CENTS = 50;             // 0.50
+const BIG_CENTS  = 15;             // 0.15
+const MINI_CD_MS = 60 * 1000;      // 1 min
+const BIG_CD_MS  = 2 * 60 * 60 * 1000; // 2 hours
 
-function h(s){return btoa(s)}
+const LS_USER = "chowdolla_user_v3";
+const LS_HASH = "chowdolla_hash_v3";
 
-async function signup(){
-  const u=lu.value.toLowerCase(),p=h(lp.value);
-  const r=db.collection("users").doc(u);
-  if((await r.get()).exists) return alert("taken");
-  await r.set({pw:p,b:10000,pfp:""});
-  me=u;start();
+let me = null;
+let meHash = null;
+let meDoc = null;
+
+let unsubUser = null;
+let unsubTx = null;
+let unsubChat = null;
+let timer = null;
+
+const $ = (id)=>document.getElementById(id);
+
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1200);
 }
-async function login(){
-  const u=lu.value.toLowerCase(),p=h(lp.value);
-  const r=db.collection("users").doc(u);
-  const s=await r.get();
-  if(!s.exists||s.data().pw!==p) return alert("wrong");
-  me=u;start();
+function setStatus(ok){ $("pillStatus").textContent = ok ? "online" : "offline"; }
+function now(){ return Date.now(); }
+function pad2(n){ return String(n).padStart(2,"0"); }
+function msToMMSS(ms){
+  if(ms <= 0) return "READY";
+  const s = Math.ceil(ms/1000);
+  const m = Math.floor(s/60);
+  const r = s % 60;
+  return pad2(m) + ":" + pad2(r);
 }
+function centsToStr(c){ return (Math.floor(Number(c||0))/100).toFixed(2); }
+function parseToCents(v){
+  const n = Number(String(v||"").replace(/,/g,"").trim());
+  if(!Number.isFinite(n)) return null;
+  return Math.floor(n*100 + 1e-9);
+}
+function cleanUser(u){
+  u = (u||"").trim().toLowerCase();
+  if(!u || u.length < 3) return null;
+  if(!/^[a-z0-9_]+$/.test(u)) return null;
+  return u;
+}
+function calcLevel(taps){
+  const t = Math.max(0, Math.floor(Number(taps||0)));
+  return Math.floor(t/1000) + 1;
+}
+function perTapCents(level){
+  return TAP_BASE_CENTS * Math.max(1, Math.floor(level||1));
+}
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function showApp(){
+  $("authCard").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  $("nav").classList.remove("hidden");
+}
+function showAuth(){
+  $("authCard").classList.remove("hidden");
+  $("app").classList.add("hidden");
+  $("nav").classList.add("hidden");
+}
+
+async function doSignup(){
+  const u = cleanUser($("authUser").value);
+  const p = $("authPass").value || "";
+  if(!u) return toast("bad username");
+  if(p.length < 4) return toast("password too short");
+
+  const hash = await sha256Hex(u + ":" + p);
+  const ref = db.collection("users").doc(u);
+  const snap = await ref.get();
+  if(snap.exists) return toast("username taken");
+
+  await ref.set({
+    pwHash: hash,
+    isAdmin: (u === "chowibz"),
+    balanceCents: 10000, // 100.00
+    taps: 0,
+    level: 1,
+    nextMini: 0,
+    nextBig: 0,
+    pfp: "",
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  me = u; meHash = hash;
+  localStorage.setItem(LS_USER, me);
+  localStorage.setItem(LS_HASH, meHash);
+  start();
+  toast("signed up");
+}
+
+async function doLogin(){
+  const u = cleanUser($("authUser").value);
+  const p = $("authPass").value || "";
+  if(!u) return toast("bad username");
+  if(!p) return toast("enter password");
+
+  const hash = await sha256Hex(u + ":" + p);
+  const ref = db.collection("users").doc(u);
+  const snap = await ref.get();
+  if(!snap.exists) return toast("no account. signup");
+
+  const d = snap.data();
+  if((d.pwHash||"") !== hash) return toast("wrong password");
+
+  me = u; meHash = hash;
+  localStorage.setItem(LS_USER, me);
+  localStorage.setItem(LS_HASH, meHash);
+  start();
+  toast("logged in");
+}
+
+function stopSubs(){
+  if(unsubUser) unsubUser(); unsubUser = null;
+  if(unsubTx) unsubTx(); unsubTx = null;
+  if(unsubChat) unsubChat(); unsubChat = null;
+  if(timer) clearInterval(timer); timer = null;
+}
+
 function start(){
-  loginDiv(false);
-  db.collection("users").doc(me).onSnapshot(s=>{
-    doc=s.data();
-    userTag.innerText="@"+me;
-    bal.innerText=(doc.b/100).toFixed(2);
-    pfpImg.src=doc.pfp||"";
-    if(me==="chowibz") admin.classList.remove("hidden");
+  stopSubs();
+  showApp();
+  $("who").textContent = "@"+me;
+  $("profLine").textContent = "@"+me+" • ChowDolla player";
+
+  const userRef = db.collection("users").doc(me);
+
+  unsubUser = userRef.onSnapshot(s=>{
+    meDoc = s.data() || null;
+    if(!meDoc) return;
+
+    const taps = Number(meDoc.taps||0);
+    const lvl = Number(meDoc.level||calcLevel(taps));
+    const balC = Number(meDoc.balanceCents||0);
+    const ptC = perTapCents(lvl);
+
+    $("bal").textContent = centsToStr(balC) + " CD";
+    $("lvl").textContent = `level ${lvl} • +${(ptC/100).toFixed(2)} per tap`;
+    $("taps").textContent = Math.floor(taps).toLocaleString("en-GB");
+    $("perTap").textContent = "+" + (ptC/100).toFixed(2);
+
+    const pfp = (meDoc.pfp||"").trim();
+    $("pfpImg").src = pfp || "";
+    $("pfpUrl").value = pfp;
+
+    const isAdminOk = (me === "chowibz") && (meDoc.isAdmin === true) && ((meDoc.pwHash||"") === meHash);
+    $("adminCard").classList.toggle("hidden", !isAdminOk);
+
+    setStatus(true);
+    renderTimers();
+  }, err=>{
+    console.error(err);
+    setStatus(false);
   });
-  db.collection("transactions").where("p","array-contains",me)
-  .onSnapshot(s=>{
-    txs.innerHTML="";
-    s.forEach(d=>{
-      const t=d.data();
-      txs.innerHTML+=`<div>${t.from} → ${t.to} ${(t.a/100).toFixed(2)}</div>`;
+
+  // transactions feed
+  unsubTx = db.collection("transactions")
+    .where("participants","array-contains", me)
+    .orderBy("ts","desc")
+    .limit(50)
+    .onSnapshot(snap=>{
+      $("txStatus").textContent = snap.empty ? "no transactions yet" : "live";
+      const box = $("txList");
+      box.innerHTML = "";
+      snap.forEach(doc=>{
+        const t = doc.data();
+        const incoming = (t.to === me);
+        const amt = centsToStr(t.amountCents||0);
+        const when = t.ts?.toDate ? t.ts.toDate().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        const el = document.createElement("div");
+        el.className = "txItem";
+        el.innerHTML = `
+          <div class="txTop">
+            <div style="font-weight:1000">${incoming ? `from @${t.from}` : `to @${t.to}`}</div>
+            <div class="${incoming ? "amtIn":"amtOut"}">${incoming?"+":"-"}${amt} CD</div>
+          </div>
+          <div class="small">${when}</div>
+        `;
+        box.appendChild(el);
+      });
+    }, err=>{
+      console.error(err);
+      $("txStatus").textContent = "can’t load (index/rules)";
     });
-  });
-  db.collection("messages").where("p","array-contains",me)
-  .onSnapshot(s=>{
-    msgs.innerHTML="";
-    s.forEach(d=>{
-      const m=d.data();
-      msgs.innerHTML+=`<div class="msg ${m.from===me?'me':''}">${m.from}: ${m.msg}</div>`;
+
+  // messages feed (latest 50 involving me)
+  unsubChat = db.collection("messages")
+    .where("participants","array-contains", me)
+    .orderBy("ts","desc")
+    .limit(50)
+    .onSnapshot(snap=>{
+      const box = $("chatList");
+      box.innerHTML = "";
+      if(snap.empty){
+        box.innerHTML = `<div class="small muted">no messages yet</div>`;
+        return;
+      }
+      snap.forEach(doc=>{
+        const m = doc.data();
+        const mine = (m.from === me);
+        const when = m.ts?.toDate ? m.ts.toDate().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        const el = document.createElement("div");
+        el.className = "chatItem";
+        el.innerHTML = `
+          <div class="chatTop">
+            <div style="font-weight:1000">${mine ? `to @${m.to}` : `from @${m.from}`}</div>
+            <div class="small">${when}</div>
+          </div>
+          <div class="msgBubble ${mine ? "msgMe":""}">${(m.text||"").replace(/</g,"&lt;")}</div>
+        `;
+        box.appendChild(el);
+      });
     });
+    
+  timer = setInterval(renderTimers, 250);
+  go("bank");
+}
+
+function logout(){
+  stopSubs();
+  localStorage.removeItem(LS_USER);
+  localStorage.removeItem(LS_HASH);
+  me = null; meHash = null; meDoc = null;
+  showAuth();
+  toast("logged out");
+}
+
+function go(p){
+  ["bank","send","tx","chat","me"].forEach(x=>{
+    $("page-"+x).classList.toggle("active", x===p);
+    $("nav-"+x).classList.toggle("active", x===p);
   });
 }
-function loginDiv(v){
-  login.classList.toggle("hidden",!v);
-  app.classList.toggle("hidden",v);
-  nav.classList.toggle("hidden",v);
+
+function renderTimers(){
+  if(!meDoc) return;
+  const n = now();
+  const leftMini = Number(meDoc.nextMini||0) - n;
+  const leftBig = Number(meDoc.nextBig||0) - n;
+
+  const readyMini = leftMini <= 0;
+  const readyBig = leftBig <= 0;
+
+  $("tMini").textContent = readyMini ? "READY" : msToMMSS(leftMini);
+  $("tBig").textContent = readyBig ? "READY" : msToMMSS(leftBig);
+
+  $("btnMini").classList.toggle("ready", readyMini);
+  $("btnMini").classList.toggle("locked", !readyMini);
+  $("btnBig").classList.toggle("ready", readyBig);
+  $("btnBig").classList.toggle("locked", !readyBig);
 }
-function tap(){db.collection("users").doc(me).update({b:doc.b+5})}
-function claim(){db.collection("users").doc(me).update({b:doc.b+50})}
-async function send(){
-  const t=to.value,a=Math.floor(Number(amt.value)*100);
-  const r=db.collection("users").doc(t);
-  if(!(await r.get()).exists) return alert("no user");
-  await db.collection("users").doc(me).update({b:doc.b-a});
-  await r.update({b:firebase.firestore.FieldValue.increment(a)});
-  db.collection("transactions").add({from:me,to:t,a,p:[me,t]});
+
+async function tap(){
+  if(!me || !meDoc) return;
+  const ref = db.collection("users").doc(me);
+  try{
+    await db.runTransaction(async tx=>{
+      const snap = await tx.get(ref);
+      if(!snap.exists) throw "missing";
+      const d = snap.data();
+      const taps = Math.floor(Number(d.taps||0)) + 1;
+      const level = calcLevel(taps);
+      const earnC = perTapCents(level);
+      const balanceCents = Math.floor(Number(d.balanceCents||0)) + earnC;
+      tx.update(ref, { taps, level, balanceCents });
+    });
+  }catch(e){
+    console.error(e);
+    toast("tap failed");
+  }
 }
-function sendMsg(){
-  db.collection("messages").add({from:me,to:chatTo.value,msg:chatMsg.value,p:[me,chatTo.value]});
+
+async function claimMini(){
+  return claimCommon("nextMini", MINI_CD_MS, MINI_CENTS);
 }
-function savePfp(){db.collection("users").doc(me).update({pfp:pfp.value})}
-function adminSet(){db.collection("users").doc(me).update({b:Math.floor(Number(setBal.value)*100)})}
-function logout(){location.reload()}
+async function claimBig(){
+  return claimCommon("nextBig", BIG_CD_MS, BIG_CENTS);
+}
+async function claimCommon(field, cooldownMs, amountCents){
+  if(!me || !meDoc) return;
+  const ref = db.collection("users").doc(me);
+  try{
+    await db.runTransaction(async tx=>{
+      const snap = await tx.get(ref);
+      if(!snap.exists) throw "missing";
+      const d = snap.data();
+      const n = now();
+      const next = Number(d[field]||0);
+      if(next > n) throw "not ready";
+      const balanceCents = Math.floor(Number(d.balanceCents||0)) + amountCents;
+      tx.update(ref, { balanceCents, [field]: n + cooldownMs });
+    });
+    toast("claimed +" + (amountCents/100).toFixed(2));
+  }catch(e){
+    if(String(e).includes("not ready")) return toast("not ready yet");
+    console.error(e);
+    toast("claim failed");
+  }
+}
+
+async function sendTransfer(){
+  if(!me || !meDoc) return;
+
+  const to = cleanUser($("toUser").value);
+  const amtC = parseToCents($("amt").value);
+  $("transferHint").textContent = "";
+
+  if(!to) return toast("enter username");
+  if(to === me) return toast("cant send to yourself");
+  if(amtC === null || amtC <= 0) return toast("enter amount");
+  if(Number(meDoc.balanceCents||0) < amtC) return toast("not enough");
+
+  const fromRef = db.collection("users").doc(me);
+  const toRef = db.collection("users").doc(to);
+
+  try{
+    await db.runTransaction(async tx=>{
+      const fromSnap = await tx.get(fromRef);
+      const toSnap = await tx.get(toRef);
+      if(!fromSnap.exists) throw "missing sender";
+      if(!toSnap.exists) throw "user not found";
+
+      const fromBal = Math.floor(Number(fromSnap.data().balanceCents||0));
+      const toBal = Math.floor(Number(toSnap.data().balanceCents||0));
+      if(fromBal < amtC) throw "no funds";
+
+      tx.update(fromRef, { balanceCents: fromBal - amtC });
+      tx.update(toRef, { balanceCents: toBal + amtC });
+    });
+
+    // log transaction
+    await db.collection("transactions").add({
+      from: me,
+      to: to,
+      participants: [me, to],
+      amountCents: amtC,
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    $("amt").value = "";
+    toast("sent " + (amtC/100).toFixed(2) + " to @" + to);
+  }catch(e){
+    console.error(e);
+    if(String(e).includes("user not found")){
+      $("transferHint").textContent = "user doesn’t exist yet. they must signup first";
+      return toast("user not found");
+    }
+    toast("transfer failed");
+  }
+}
+
+async function sendMessage(){
+  if(!me || !meDoc) return;
+
+  const to = cleanUser($("chatTo").value);
+  const text = ($("chatText").value||"").trim();
+  $("chatHint").textContent = "";
+
+  if(!to) return toast("enter username");
+  if(!text) return toast("type message");
+  if(text.length > 300) return toast("too long");
+
+  const toSnap = await db.collection("users").doc(to).get();
+  if(!toSnap.exists){
+    $("chatHint").textContent = "user doesn’t exist yet. they must signup first";
+    return toast("user not found");
+  }
+
+  await db.collection("messages").add({
+    from: me,
+    to: to,
+    participants: [me, to],
+    text: text,
+    ts: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  $("chatText").value = "";
+  toast("sent");
+}
+
+async function savePfp(){
+  if(!me) return;
+  const url = ($("pfpUrl").value||"").trim();
+  // allow empty to clear
+  await db.collection("users").doc(me).update({ pfp: url });
+  toast("saved");
+}
+
+async function adminSetBalance(){
+  if(me !== "chowibz" || !meDoc || meDoc.isAdmin !== true || (meDoc.pwHash||"") !== meHash) return toast("nope");
+  const newC = parseToCents($("setBal").value);
+  if(newC === null || newC < 0) return toast("bad number");
+  await db.collection("users").doc(me).update({ balanceCents: newC });
+  $("setBal").value = "";
+  toast("updated");
+}
+
+/* restore session */
+(async function boot(){
+  const u = localStorage.getItem(LS_USER);
+  const h = localStorage.getItem(LS_HASH);
+  if(!u || !h) return;
+
+  const snap = await db.collection("users").doc(u).get().catch(()=>null);
+  if(!snap || !snap.exists) return;
+  const d = snap.data();
+  if((d.pwHash||"") !== h) return;
+
+  me = u; meHash = h;
+  start();
+})();
 </script>
+
 </body>
 </html>
