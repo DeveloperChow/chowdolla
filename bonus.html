@@ -3,47 +3,58 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
 <title>ChowDolla Bonus</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-html,body{margin:0;height:100%;background:#05070d;color:#e9eef7;font-family:system-ui}
-*{-webkit-tap-highlight-color:transparent}
-
 :root{
-  --card:rgba(18,24,40,.75);
+  --bg:#05070d;
+  --text:#e9eef7;
+  --muted:rgba(233,238,247,.6);
   --line:rgba(255,255,255,.12);
   --brand:#4f7cff;
   --good:#22c55e;
+  --card:rgba(18,24,40,.82);
+  --shadow:0 18px 70px rgba(0,0,0,.55);
 }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;overflow:hidden}
 
+/* always-visible tiny button */
 #tinyBtn{
   position:fixed;
-  right:12px;
+  right:14px;
   top:50%;
   transform:translateY(-50%);
-  width:34px;height:34px;
-  border-radius:12px;
-  background:linear-gradient(180deg,#6ea0ff,#4f7cff);
+  width:44px;height:44px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(120,160,255,.95), rgba(79,124,255,.85));
+  border:1px solid rgba(255,255,255,.18);
   display:grid;place-items:center;
-  font-weight:1000;
-  box-shadow:0 10px 30px rgba(79,124,255,.4);
-  z-index:10;
+  font-weight:1000;font-size:18px;
+  box-shadow:0 16px 40px rgba(79,124,255,.30);
+  z-index:99999;
+  user-select:none;
 }
+#tinyBtn:active{transform:translateY(-50%) scale(.98)}
 
+/* slide menu */
 #menu{
   position:fixed;
-  right:-260px;
+  right:-300px;
   top:0;
-  width:260px;
+  width:300px;
   height:100%;
-  background:linear-gradient(180deg,rgba(10,14,24,.98),rgba(6,8,14,.98));
+  background:linear-gradient(180deg, rgba(10,14,24,.98), rgba(6,8,14,.98));
   border-left:1px solid var(--line);
-  transition:right .25s ease;
+  box-shadow:var(--shadow);
+  transition:right .22s ease;
   padding:16px;
-  z-index:9;
+  z-index:99998;
 }
 #menu.open{right:0}
 
@@ -52,54 +63,126 @@ html,body{margin:0;height:100%;background:#05070d;color:#e9eef7;font-family:syst
   border-radius:18px;
   padding:14px;
   background:var(--card);
-  margin-bottom:14px;
+  margin-bottom:12px;
 }
-
+.row{display:flex;gap:10px;align-items:center}
+.small{font-size:12px;color:var(--muted)}
+.big{font-size:18px;font-weight:1000;letter-spacing:1px}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.18);
+  color:var(--text);
+  outline:none;
+  font-size:15px;
+}
 .btn{
   width:100%;
-  padding:14px;
+  padding:13px 12px;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.14);
-  background:rgba(79,124,255,.25);
-  color:white;
+  background:rgba(79,124,255,.24);
+  color:var(--text);
   font-weight:1000;
-  font-size:18px;
+  font-size:16px;
 }
 .btn.ready{
-  background:rgba(34,197,94,.25);
-  border-color:rgba(34,197,94,.5);
+  background:rgba(34,197,94,.20);
+  border-color:rgba(34,197,94,.45);
 }
-
-.small{font-size:12px;opacity:.7}
-.center{text-align:center}
+.btnGhost{
+  background:rgba(255,255,255,.06);
+}
+.pill{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.20);
+  color:var(--muted);
+  font-size:11px;
+}
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:24px;
+  background:rgba(0,0,0,.72);
+  border:1px solid rgba(255,255,255,.14);
+  padding:10px 12px;
+  border-radius:999px;
+  opacity:0;
+  transition:opacity .15s ease, transform .15s ease;
+  z-index:999999;
+  backdrop-filter:blur(10px);
+  font-size:13px;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
+a{color:var(--muted);text-decoration:none}
 </style>
 </head>
 
 <body>
 
-<div id="tinyBtn" onclick="toggle()">+</div>
+<div id="tinyBtn" onclick="toggleMenu()">£</div>
 
 <div id="menu">
-  <div class="card center">
-    <div style="font-weight:1000;letter-spacing:1px">BONUS MENU</div>
-    <div class="small">free timed rewards</div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <div class="big">BONUS</div>
+        <div class="small">timed rewards menu</div>
+      </div>
+      <div class="pill" id="statusPill">not logged</div>
+    </div>
   </div>
 
-  <div class="card center">
-    <div class="small">£5 bonus</div>
-    <button id="btn5" class="btn" onclick="claim5()">£5</button>
-    <div class="small" id="t5">loading…</div>
+  <div class="card" id="loginCard">
+    <div class="small">login here (only for bonus page)</div>
+    <div class="row" style="margin-top:10px">
+      <input id="u" placeholder="username" autocomplete="off">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <input id="p" type="password" placeholder="password" autocomplete="off">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="login()">login</button>
+      <button class="btn btnGhost" onclick="goHome()">home</button>
+    </div>
+    <div class="small" style="margin-top:8px">home = your main app (index.html)</div>
   </div>
 
-  <div class="card center">
-    <div class="small">£10 bonus</div>
-    <button id="btn10" class="btn" onclick="claim10()">£10</button>
-    <div class="small" id="t10">loading…</div>
+  <div class="card hidden" id="bonusCard">
+    <div class="small">logged in as</div>
+    <div class="big" id="who">@—</div>
+    <div class="small" style="margin-top:6px">balance: <b id="bal">0.00</b> CD</div>
+
+    <div style="margin-top:14px" class="small">£5 every 5 mins</div>
+    <button id="btn5" class="btn" onclick="claim5()">claim £5</button>
+    <div class="small" id="t5">—</div>
+
+    <div style="margin-top:14px" class="small">£10 every 20 mins</div>
+    <button id="btn10" class="btn" onclick="claim10()">claim £10</button>
+    <div class="small" id="t10">—</div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn btnGhost" onclick="logout()">logout</button>
+      <button class="btn btnGhost" onclick="goHome()">home</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="small">link</div>
+    <div class="small">
+      if you’re on GitHub Pages: open <b>/bonus.html</b><br>
+      <span class="small">(this page doesn’t appear inside index automatically)</span>
+    </div>
   </div>
 </div>
 
+<div class="toast" id="toast">—</div>
+
 <script>
-/* firebase */
 firebase.initializeApp({
   apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
   authDomain: "chowdolla.firebaseapp.com",
@@ -108,66 +191,135 @@ firebase.initializeApp({
   messagingSenderId: "976957921591",
   appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
 });
-const db=firebase.firestore();
+const db = firebase.firestore();
 
-/* config */
+/* timers + values */
 const FIVE_MS = 5 * 60 * 1000;
 const TEN_MS  = 20 * 60 * 1000;
-const FIVE_CENTS = 500;
-const TEN_CENTS  = 1000;
+const FIVE_CENTS = 500;   // £5
+const TEN_CENTS  = 1000;  // £10
 
-/* auth via localStorage from main app */
-const me = localStorage.getItem("chowdolla_user_v5");
-if(!me) alert("login in main app first");
+let me = null;
+let unsub = null;
+let docData = null;
 
-/* ui */
-function toggle(){
-  document.getElementById("menu").classList.toggle("open");
+const $ = (id)=>document.getElementById(id);
+
+function toggleMenu(){ $("menu").classList.toggle("open"); }
+function goHome(){ window.location.href = "./"; }
+
+function toast(msg){
+  $("toast").textContent = msg;
+  $("toast").classList.add("show");
+  setTimeout(()=>$("toast").classList.remove("show"), 1100);
 }
+
+function cleanUser(u){
+  u = (u||"").trim().toLowerCase();
+  if(!u || u.length<3) return null;
+  if(!/^[a-z0-9_]+$/.test(u)) return null;
+  return u;
+}
+
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function centsToStr(c){ return (Math.floor(Number(c||0))/100).toFixed(2); }
+
 function mmss(ms){
   if(ms<=0) return "READY";
   const s=Math.ceil(ms/1000);
-  return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+  const m=Math.floor(s/60);
+  const r=s%60;
+  return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0");
 }
 
-let docData=null;
-db.collection("users").doc(me).onSnapshot(s=>{
-  docData=s.data();
-  tick();
-});
+function setLoggedUI(isLogged){
+  $("loginCard").classList.toggle("hidden", isLogged);
+  $("bonusCard").classList.toggle("hidden", !isLogged);
+  $("statusPill").textContent = isLogged ? "logged" : "not logged";
+}
+
+async function login(){
+  const u = cleanUser($("u").value);
+  const p = ($("p").value||"");
+  if(!u) return toast("bad username");
+  if(!p) return toast("enter password");
+
+  const hash = await sha256Hex(u + ":" + p);
+  const snap = await db.collection("users").doc(u).get().catch(()=>null);
+  if(!snap || !snap.exists) return toast("no account");
+  const d = snap.data();
+  if((d.pwHash||"") !== hash) return toast("wrong password");
+
+  me = u;
+
+  if(unsub) unsub();
+  unsub = db.collection("users").doc(me).onSnapshot(s=>{
+    docData = s.data() || null;
+    if(!docData) return;
+    $("who").textContent = "@"+me;
+    $("bal").textContent = centsToStr(docData.balanceCents||0);
+    tick();
+  });
+
+  setLoggedUI(true);
+  toast("ok");
+}
+
+function logout(){
+  me = null;
+  docData = null;
+  if(unsub) unsub(); unsub=null;
+  setLoggedUI(false);
+  toast("logged out");
+}
 
 function tick(){
   if(!docData) return;
-  const n=Date.now();
 
-  const l5=(docData.next5||0)-n;
-  const l10=(docData.next10||0)-n;
+  const n = Date.now();
+  const l5  = (docData.next5 || 0)  - n;
+  const l10 = (docData.next10 || 0) - n;
 
-  document.getElementById("t5").textContent = mmss(l5);
-  document.getElementById("t10").textContent = mmss(l10);
+  $("t5").textContent  = mmss(l5);
+  $("t10").textContent = mmss(l10);
 
-  document.getElementById("btn5").classList.toggle("ready",l5<=0);
-  document.getElementById("btn10").classList.toggle("ready",l10<=0);
+  $("btn5").classList.toggle("ready", l5<=0);
+  $("btn10").classList.toggle("ready", l10<=0);
 }
-setInterval(tick,1000);
+setInterval(tick, 500);
 
-async function claim(refField,delay,cents){
-  const ref=db.collection("users").doc(me);
-  await db.runTransaction(async tx=>{
-    const s=await tx.get(ref);
-    const d=s.data();
-    const n=Date.now();
-    if((d[refField]||0)>n) throw "wait";
-    tx.update(ref,{
-      balanceCents:(d.balanceCents||0)+cents,
-      [refField]:n+delay
+async function claim(field, delay, cents){
+  if(!me) return toast("login first");
+  const ref = db.collection("users").doc(me);
+
+  try{
+    await db.runTransaction(async tx=>{
+      const s = await tx.get(ref);
+      if(!s.exists) throw "missing";
+      const d = s.data();
+      const n = Date.now();
+      if((d[field]||0) > n) throw "wait";
+      tx.update(ref, {
+        balanceCents: Math.floor(Number(d.balanceCents||0)) + cents,
+        [field]: n + delay
+      });
     });
-  }).catch(()=>{});
+    toast("claimed");
+  }catch(e){
+    toast("not ready");
+  }
 }
 
-function claim5(){claim("next5",FIVE_MS,FIVE_CENTS)}
-function claim10(){claim("next10",TEN_MS,TEN_CENTS)}
-</script>
+function claim5(){ claim("next5", FIVE_MS, FIVE_CENTS); }
+function claim10(){ claim("next10", TEN_MS, TEN_CENTS); }
 
+/* start state */
+setLoggedUI(false);
+</script>
 </body>
 </html>
