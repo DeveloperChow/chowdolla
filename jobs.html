@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#0b0f14" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>ChowDolla — Jobs</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+:root{
+  --bg:#0b0f14; --text:#e9eef7; --muted:rgba(233,238,247,.6);
+  --line:rgba(255,255,255,.08); --brand:#4f7cff; --good:#22c55e; --bad:#ef4444;
+  --shadow:0 18px 50px rgba(0,0,0,.45); --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--text);
+  background:
+    radial-gradient(1100px 700px at 20% 0%, #141f34 0%, var(--bg) 60%),
+    radial-gradient(900px 600px at 90% 10%, #1c1236 0%, transparent 55%),
+    var(--bg);
+}
+.safe{padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 14px)}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin:12px 0;
+}
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px
+}
+.btn{
+  border:none;border-radius:16px;padding:12px 12px;
+  font-size:15px;font-weight:1000;color:var(--text);
+  background:rgba(79,124,255,.92);
+}
+.btnGhost{background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.small{font-size:12px;color:var(--muted)}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.job{
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.16);
+  border-radius:16px;
+  padding:12px;
+  margin-top:10px;
+}
+.jobTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.badge{font-size:11px;padding:6px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.locked{opacity:.65}
+.ok{color:var(--good);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+</style>
+</head>
+
+<body>
+<div class="safe">
+  <div class="card">
+    <div class="top">
+      <div>
+        <div style="font-weight:1000;letter-spacing:1px">jobs</div>
+        <div class="small" id="who">—</div>
+      </div>
+      <button class="btnGhost btn" onclick="goBack()">back</button>
+    </div>
+    <div class="sep"></div>
+    <div class="small" id="status">loading…</div>
+  </div>
+
+  <div class="card">
+    <div class="small" style="margin-bottom:6px">pick a job (unlocks by taps). saves to your profile</div>
+    <div id="jobs"></div>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
+  authDomain: "chowdolla.firebaseapp.com",
+  projectId: "chowdolla",
+  storageBucket: "chowdolla.firebasestorage.app",
+  messagingSenderId: "976957921591",
+  appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const LS_USER = "chowdolla_user_v3";
+const LS_HASH = "chowdolla_hash_v3";
+
+const JOBS = [
+  { id:"cleaner",  name:"Cleaner",  reqTaps:100,  perk:"+0.02 per tap bonus" },
+  { id:"barista",  name:"Barista",  reqTaps:250,  perk:"+0.03 per tap bonus" },
+  { id:"chef",     name:"Chef",     reqTaps:500,  perk:"+0.05 per tap bonus" },
+  { id:"driver",   name:"Driver",   reqTaps:800,  perk:"+0.08 per tap bonus" },
+  { id:"manager",  name:"Manager",  reqTaps:1500, perk:"+0.12 per tap bonus" }
+];
+
+const $ = (id)=>document.getElementById(id);
+
+function goBack(){ window.location.href = "./"; }
+function cleanUser(u){
+  u = (u||"").trim().toLowerCase();
+  if(!u) return null;
+  return u;
+}
+
+let me=null, meHash=null, meDoc=null, unsub=null;
+
+async function boot(){
+  me = cleanUser(localStorage.getItem(LS_USER));
+  meHash = (localStorage.getItem(LS_HASH)||"").trim();
+  if(!me || !meHash){
+    $("status").textContent = "not logged in. open the main app and login first";
+    return;
+  }
+
+  const userRef = db.collection("users").doc(me);
+  const snap = await userRef.get().catch(()=>null);
+  if(!snap || !snap.exists){
+    $("status").textContent = "account not found. login again";
+    return;
+  }
+  const d = snap.data();
+  if((d.pwHash||"") !== meHash){
+    $("status").textContent = "session expired. login again";
+    return;
+  }
+
+  $("who").textContent = "@"+me;
+  $("status").textContent = "live";
+
+  if(unsub) unsub();
+  unsub = userRef.onSnapshot(s=>{
+    meDoc = s.data() || null;
+    render();
+  });
+}
+
+function render(){
+  if(!meDoc) return;
+  const taps = Math.floor(Number(meDoc.taps||0));
+  const currentJob = (meDoc.job||"none");
+  const box = $("jobs");
+  box.innerHTML = "";
+
+  JOBS.forEach(j=>{
+    const unlocked = taps >= j.reqTaps;
+    const active = currentJob === j.id;
+
+    const el = document.createElement("div");
+    el.className = "job" + (unlocked ? "" : " locked");
+    el.innerHTML = `
+      <div class="jobTop">
+        <div style="font-weight:1000">${j.name}</div>
+        <div class="badge ${active ? "ok":""}">${active ? "ACTIVE" : (unlocked ? "UNLOCKED" : "LOCKED")}</div>
+      </div>
+      <div class="small" style="margin-top:6px">requires: ${j.reqTaps} taps</div>
+      <div class="small">perk: ${j.perk}</div>
+      <div style="margin-top:10px;display:flex;gap:10px">
+        <button class="btn ${active ? "btnGhost":""}" style="flex:1" ${unlocked ? "" : "disabled"} onclick="setJob('${j.id}')">
+          ${active ? "selected" : (unlocked ? "choose job" : "need more taps")}
+        </button>
+      </div>
+    `;
+    box.appendChild(el);
+  });
+
+  const none = document.createElement("div");
+  none.className = "job";
+  none.innerHTML = `
+    <div class="jobTop">
+      <div style="font-weight:1000">No Job</div>
+      <div class="badge ${currentJob==="none" ? "ok":""}">${currentJob==="none" ? "ACTIVE" : ""}</div>
+    </div>
+    <div class="small" style="margin-top:6px">perk: none</div>
+    <div style="margin-top:10px">
+      <button class="btn ${currentJob==="none" ? "btnGhost":""}" onclick="setJob('none')">
+        ${currentJob==="none" ? "selected" : "clear job"}
+      </button>
+    </div>
+  `;
+  box.appendChild(none);
+}
+
+async function setJob(jobId){
+  if(!me) return;
+  await db.collection("users").doc(me).update({ job: jobId });
+}
+boot();
+</script>
+</body>
+</html>
