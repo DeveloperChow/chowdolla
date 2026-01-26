@@ -9,30 +9,20 @@
 <meta name="apple-mobile-web-app-title" content="ChowDolla" />
 <title>CHOWDOLLA — Fake Bank Game</title>
 
-<!-- Firebase (single-file compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
 :root{
-  --bg:#0b0f14;
-  --panel:#111827;
-  --panel2:#0f172a;
-  --text:#e9eef7;
-  --muted:rgba(233,238,247,.6);
-  --line:rgba(255,255,255,.08);
-  --brand:#4f7cff;
-  --good:#22c55e;
-  --gold:#fbbf24;
-  --bad:#ef4444;
-  --shadow: 0 18px 50px rgba(0,0,0,.45);
-  --radius:18px;
+  --bg:#0b0f14; --panel:#111827; --panel2:#0f172a; --text:#e9eef7;
+  --muted:rgba(233,238,247,.6); --line:rgba(255,255,255,.08);
+  --brand:#4f7cff; --good:#22c55e; --gold:#fbbf24; --bad:#ef4444;
+  --shadow:0 18px 50px rgba(0,0,0,.45); --radius:18px;
 }
-*{box-sizing:border-box; -webkit-tap-highlight-color: transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{
-  margin:0;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
   color:var(--text);
   background:
     radial-gradient(1100px 700px at 20% 0%, #141f34 0%, var(--bg) 60%),
@@ -40,209 +30,138 @@ body{
     var(--bg);
   overflow:hidden;
 }
+.hidden{display:none}
 .safe{
-  padding: calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 88px);
-  height:100%;
-  overflow:auto;
-  overscroll-behavior: none;
+  padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 88px);
+  height:100%; overflow:auto; overscroll-behavior:none;
 }
 .topbar{
-  position:sticky; top:0;
-  padding: 10px 10px 14px;
-  background: linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.65), rgba(11,15,20,0));
-  backdrop-filter: blur(12px);
-  z-index:10;
+  position:sticky; top:0; z-index:10;
+  padding:10px 10px 14px;
+  background:linear-gradient(180deg, rgba(11,15,20,.92), rgba(11,15,20,.65), rgba(11,15,20,0));
+  backdrop-filter:blur(12px);
 }
 .brandWrap{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
-  border:1px solid var(--line);
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(17,24,39,.62));
-  box-shadow: var(--shadow);
-  padding: 12px 12px;
+  border:1px solid var(--line); border-radius:var(--radius);
+  background:linear-gradient(180deg, rgba(17,24,39,.95), rgba(17,24,39,.62));
+  box-shadow:var(--shadow); padding:12px;
 }
 .brandLeft{display:flex; align-items:center; gap:10px}
 .logo{
-  width:44px; height:44px; border-radius:16px;
-  display:grid; place-items:center;
-  background: radial-gradient(circle at 30% 30%, #8aa9ff 0%, var(--brand) 35%, #2a45b0 100%);
-  box-shadow: 0 12px 28px rgba(79,124,255,.22), inset 0 0 0 1px rgba(255,255,255,.14);
+  width:44px;height:44px;border-radius:16px;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%, #8aa9ff 0%, var(--brand) 35%, #2a45b0 100%);
+  box-shadow:0 12px 28px rgba(79,124,255,.22), inset 0 0 0 1px rgba(255,255,255,.14);
   font-weight:900; letter-spacing:.5px;
 }
-.brandTxt{display:flex; flex-direction:column; gap:2px}
-.brandTxt .t{font-weight:900; letter-spacing:2px; font-size:15px}
-.brandTxt .s{font-size:11px; color:var(--muted); letter-spacing:1px}
+.brandTxt{display:flex;flex-direction:column;gap:2px}
+.brandTxt .t{font-weight:900;letter-spacing:2px;font-size:15px}
+.brandTxt .s{font-size:11px;color:var(--muted);letter-spacing:1px}
 .pill{
-  font-size:11px;
-  padding:7px 10px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background: rgba(0,0,0,.18);
-  color:var(--muted);
-  white-space:nowrap;
+  font-size:11px;padding:7px 10px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(0,0,0,.18);color:var(--muted);white-space:nowrap;
 }
-
+.wrap{max-width:980px;margin:0 auto}
 .card{
   border:1px solid var(--line);
-  background: linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  background:linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.65));
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
   padding:14px;
-  margin: 12px 0;
+  margin:12px 0;
 }
-.row{display:flex; gap:10px; align-items:center}
-.col{flex:1}
 .center{text-align:center}
 .muted{color:var(--muted)}
-.bigMoney{
-  font-size:36px; font-weight:900; letter-spacing:1px;
-  margin: 6px 0 0;
-}
-.subMoney{
-  font-size:12px; color:var(--muted); letter-spacing:1px;
-}
-.sep{height:1px; background:var(--line); margin:12px 0}
+.sep{height:1px;background:var(--line);margin:12px 0}
 input{
-  width:100%;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background: rgba(0,0,0,.18);
-  color:var(--text);
-  outline:none;
-  font-size:16px;
+  width:100%; padding:12px; border-radius:14px;
+  border:1px solid var(--line); background:rgba(0,0,0,.18);
+  color:var(--text); outline:none; font-size:16px;
 }
 button{
-  border:none;
-  border-radius:16px;
-  padding:12px 12px;
-  font-size:16px;
-  font-weight:800;
-  color:var(--text);
-  background: rgba(79,124,255,.92);
-  box-shadow: 0 10px 24px rgba(79,124,255,.18);
-  transform: translateZ(0);
-  transition: transform .08s ease, filter .2s ease, opacity .2s ease;
+  border:none; border-radius:16px; padding:12px;
+  font-size:16px; font-weight:900; color:var(--text);
+  background:rgba(79,124,255,.92);
+  box-shadow:0 10px 24px rgba(79,124,255,.18);
+  transition:transform .08s ease, opacity .2s ease;
   user-select:none;
 }
-button:active{transform: scale(.985)}
-.btnGhost{
-  background: rgba(255,255,255,.06);
-  box-shadow:none;
-  border:1px solid var(--line);
-}
-.btnBad{background: rgba(239,68,68,.92); box-shadow: 0 10px 24px rgba(239,68,68,.15)}
-.btnGood{background: rgba(34,197,94,.92); box-shadow: 0 10px 24px rgba(34,197,94,.15)}
-.btnGold{background: rgba(251,191,36,.92); color:#101010; box-shadow: 0 10px 24px rgba(251,191,36,.15)}
-
-.page{display:none; animation: fadeIn .18s ease}
+button:active{transform:scale(.985)}
+.btnGhost{background:rgba(255,255,255,.06);box-shadow:none;border:1px solid var(--line)}
+.btnBad{background:rgba(239,68,68,.92);box-shadow:0 10px 24px rgba(239,68,68,.15)}
+.btnGold{background:rgba(251,191,36,.92);color:#101010;box-shadow:0 10px 24px rgba(251,191,36,.15)}
+.small{font-size:12px;color:var(--muted)}
+.page{display:none;animation:fadeIn .18s ease}
 .page.active{display:block}
-@keyframes fadeIn{from{opacity:.5; transform: translateY(6px)} to{opacity:1; transform: translateY(0)}}
+@keyframes fadeIn{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.bigMoney{font-size:36px;font-weight:1000;letter-spacing:1px;margin:6px 0 0}
+.subMoney{font-size:12px;color:var(--muted);letter-spacing:1px}
+.kpi{display:flex;gap:10px;margin-top:10px}
+.kpi .box{flex:1;border:1px solid var(--line);background:rgba(0,0,0,.16);border-radius:16px;padding:10px}
+.kpi .k{font-size:11px;color:var(--muted);letter-spacing:1px}
+.kpi .v{margin-top:2px;font-weight:1000;font-size:16px}
 
 .arcadeZone{
-  display:grid;
-  grid-template-columns: 1fr 1.35fr 1fr;
-  gap:12px;
-  align-items:center;
-  margin-top:12px;
+  display:grid; grid-template-columns:1fr 1.35fr 1fr;
+  gap:12px; align-items:center; margin-top:12px;
 }
 .arcadeBtn{
-  border-radius: 22px;
-  padding: 14px 10px;
-  background: rgba(255,255,255,.06);
+  border-radius:22px; padding:14px 10px;
+  background:rgba(255,255,255,.06);
   border:1px solid var(--line);
-  box-shadow: none;
+  box-shadow:none;
 }
-.arcadeBtn .aT{font-size:12px; letter-spacing:1px; color:var(--muted)}
-.arcadeBtn .aV{font-size:18px; font-weight:900; margin-top:2px}
-.arcadeBtn.ready{background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.35)}
-.arcadeBtn.ready .aV{color: var(--good)}
+.arcadeBtn .aT{font-size:12px;letter-spacing:1px;color:var(--muted)}
+.arcadeBtn .aV{font-size:18px;font-weight:1000;margin-top:2px}
+.arcadeBtn.ready{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.35)}
+.arcadeBtn.ready .aV{color:var(--good)}
 .arcadeBtn.locked{opacity:.85}
 
 .tapCore{
-  width: 168px; height: 168px;
-  border-radius: 999px;
-  margin: 0 auto;
-  display:grid; place-items:center;
-  background: radial-gradient(circle at 30% 30%, rgba(34,197,94,.95), rgba(34,197,94,.7), rgba(16,185,129,.55));
-  box-shadow: 0 18px 40px rgba(34,197,94,.18), inset 0 0 0 1px rgba(255,255,255,.18);
-  border: 1px solid rgba(255,255,255,.12);
-  font-size: 40px;
-  font-weight: 1000;
-  letter-spacing: .5px;
-  cursor:pointer;
-  user-select:none;
-  transition: transform .07s ease;
+  width:168px;height:168px;border-radius:999px;margin:0 auto;
+  display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 30%, rgba(34,197,94,.95), rgba(34,197,94,.7), rgba(16,185,129,.55));
+  box-shadow:0 18px 40px rgba(34,197,94,.18), inset 0 0 0 1px rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.12);
+  font-size:40px;font-weight:1000;letter-spacing:.5px;
+  user-select:none;cursor:pointer;transition:transform .07s ease;
 }
-.tapCore:active{transform: scale(.985)}
-.tapHint{margin-top:10px; font-size:12px; color:var(--muted); letter-spacing:1px}
-
-.toast{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  bottom: calc(env(safe-area-inset-bottom) + 86px);
-  background: rgba(0,0,0,.7);
-  border: 1px solid rgba(255,255,255,.12);
-  color: var(--text);
-  padding: 10px 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .18s ease, transform .18s ease;
-  backdrop-filter: blur(12px);
-  z-index:999;
-}
-.toast.show{opacity:1; transform: translateX(-50%) translateY(-4px)}
+.tapCore:active{transform:scale(.985)}
+.tapHint{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:1px}
 
 .nav{
-  position:fixed;
-  left:0; right:0;
-  bottom:0;
-  padding: 10px 14px calc(env(safe-area-inset-bottom) + 10px);
-  background: linear-gradient(180deg, rgba(11,15,20,0), rgba(11,15,20,.65), rgba(11,15,20,.92));
-  backdrop-filter: blur(12px);
+  position:fixed; left:0; right:0; bottom:0;
+  padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);
+  background:linear-gradient(180deg, rgba(11,15,20,0), rgba(11,15,20,.65), rgba(11,15,20,.92));
+  backdrop-filter:blur(12px);
 }
 .navBar{
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:10px;
-  border:1px solid var(--line);
-  border-radius: 22px;
-  padding: 10px;
-  background: rgba(17,24,39,.78);
-  box-shadow: var(--shadow);
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  border:1px solid var(--line); border-radius:22px; padding:10px;
+  background:rgba(17,24,39,.78); box-shadow:var(--shadow);
 }
 .navBtn{
-  padding: 10px 8px;
-  border-radius: 18px;
-  background: rgba(255,255,255,.06);
+  padding:10px 8px;border-radius:18px;
+  background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.06);
-  font-weight:900;
-  font-size:12px;
-  letter-spacing:1px;
-  text-align:center;
-  color: var(--muted);
+  font-weight:1000;font-size:12px;letter-spacing:1px;
+  text-align:center;color:var(--muted);
 }
 .navBtn.active{
-  background: rgba(79,124,255,.18);
-  border-color: rgba(79,124,255,.28);
-  color: var(--text);
+  background:rgba(79,124,255,.18);
+  border-color:rgba(79,124,255,.28);
+  color:var(--text);
 }
-.kpi{
-  display:flex; gap:10px; margin-top:10px;
+.toast{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(env(safe-area-inset-bottom) + 86px);
+  background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.12);
+  padding:10px 12px; border-radius:999px; font-size:13px;
+  opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+  backdrop-filter:blur(12px); z-index:999;
 }
-.kpi .box{
-  flex:1;
-  border:1px solid var(--line);
-  background: rgba(0,0,0,.16);
-  border-radius: 16px;
-  padding: 10px;
-}
-.kpi .box .k{font-size:11px; color:var(--muted); letter-spacing:1px}
-.kpi .box .v{margin-top:2px; font-weight:900; font-size:16px}
-.small{font-size:12px; color:var(--muted)}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
 </style>
 </head>
 
@@ -264,108 +183,105 @@ button:active{transform: scale(.985)}
 
   <!-- LOGIN -->
   <div class="card" id="loginCard">
-    <div style="font-weight:900; letter-spacing:1px; font-size:16px">enter game</div>
-    <div class="small" style="margin-top:6px">pick a username • it’s shared across devices</div>
+    <div style="font-weight:1000;letter-spacing:1px;font-size:16px">login / signup</div>
+    <div class="small" style="margin-top:6px">username + password • shared across devices</div>
+    <div class="sep"></div>
+
     <input id="inUser" placeholder="username e.g. chowibz" autocomplete="off" />
-    <button style="margin-top:12px" onclick="doLogin()">login</button>
-    <div class="small" style="margin-top:10px">tip: add to home screen for full iOS app feel</div>
+    <input id="inPass" type="password" placeholder="password" autocomplete="off" />
+
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button style="flex:1" onclick="doLogin()">login</button>
+      <button style="flex:1" class="btnGhost" onclick="doSignup()">signup</button>
+    </div>
+
+    <div class="small" style="margin-top:10px">tip: add to home screen for iOS app feel</div>
   </div>
 
   <!-- APP -->
   <div id="app" class="hidden">
 
-    <!-- BANK PAGE -->
     <div id="page-bank" class="page active">
       <div class="card center">
         <div class="muted" style="letter-spacing:1px">welcome</div>
-        <div style="font-weight:1000; font-size:18px; margin-top:2px" id="who">@user</div>
+        <div style="font-weight:1000;font-size:18px;margin-top:2px" id="who">@user</div>
 
         <div class="sep"></div>
 
         <div class="subMoney">balance</div>
-        <div class="bigMoney" id="bal">0 CD</div>
-        <div class="subMoney" id="lvl">level 1 • +1 per tap</div>
+        <div class="bigMoney" id="bal">0.00 CD</div>
+        <div class="subMoney" id="lvl">level 1 • +0.05 per tap</div>
 
         <div class="kpi">
-          <div class="box">
-            <div class="k">taps</div>
-            <div class="v" id="taps">0</div>
-          </div>
-          <div class="box">
-            <div class="k">per tap</div>
-            <div class="v" id="perTap">+1</div>
-          </div>
+          <div class="box"><div class="k">taps</div><div class="v" id="taps">0</div></div>
+          <div class="box"><div class="k">per tap</div><div class="v" id="perTap">+0.05</div></div>
         </div>
 
         <div class="arcadeZone">
-          <button id="btn20" class="arcadeBtn locked" onclick="claim(20)">
+          <button id="btn50" class="arcadeBtn locked" onclick="claimMini()">
             <div class="aT">MINI CLAIM</div>
-            <div class="aV">+20</div>
-            <div class="aT" id="t20">00:00</div>
+            <div class="aV">+0.50</div>
+            <div class="aT" id="t50">00:00</div>
           </button>
 
           <div>
             <div class="tapCore" onclick="tap()">TAP</div>
-            <div class="tapHint">tap = earn ChowDollas • level up every 1000 taps</div>
+            <div class="tapHint">tap to earn • level up every 1000 taps</div>
           </div>
 
-          <button id="btn150" class="arcadeBtn locked" onclick="claim(150)">
+          <button id="btn15" class="arcadeBtn locked" onclick="claimBig()">
             <div class="aT">BIG CLAIM</div>
-            <div class="aV">+150</div>
-            <div class="aT" id="t150">00:00</div>
+            <div class="aV">+0.15</div>
+            <div class="aT" id="t15">00:00</div>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- EARN PAGE (just info + same actions) -->
     <div id="page-earn" class="page">
       <div class="card">
-        <div style="font-weight:1000; letter-spacing:1px">earn</div>
+        <div style="font-weight:1000;letter-spacing:1px">earn</div>
         <div class="small" style="margin-top:6px">
-          tap gives CD based on your level. level = floor(taps/1000)+1. level 5 = +5 per tap etc
+          base tap is 0.05 CD, multiplied by your level. level = floor(taps/1000)+1
         </div>
         <div class="sep"></div>
-        <button class="btnGood" onclick="tap()">tap now (+<span id="earnTapTxt">1</span>)</button>
-        <div class="row" style="margin-top:10px">
-          <button class="arcadeBtn col" id="btn20b" onclick="claim(20)">
-            <div class="aT">MINI</div><div class="aV">+20</div><div class="aT" id="t20b">00:00</div>
+        <button class="btnGhost" onclick="tap()">tap now (+<span id="earnTapTxt">0.05</span>)</button>
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="arcadeBtn" style="flex:1" id="btn50b" onclick="claimMini()">
+            <div class="aT">MINI</div><div class="aV">+0.50</div><div class="aT" id="t50b">00:00</div>
           </button>
-          <button class="arcadeBtn col" id="btn150b" onclick="claim(150)">
-            <div class="aT">BIG</div><div class="aV">+150</div><div class="aT" id="t150b">00:00</div>
+          <button class="arcadeBtn" style="flex:1" id="btn15b" onclick="claimBig()">
+            <div class="aT">BIG</div><div class="aV">+0.15</div><div class="aT" id="t15b">00:00</div>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- TRANSFER PAGE -->
     <div id="page-transfer" class="page">
       <div class="card">
-        <div style="font-weight:1000; letter-spacing:1px">transfer</div>
+        <div style="font-weight:1000;letter-spacing:1px">transfer</div>
         <div class="small" style="margin-top:6px">send CD to another username (must exist)</div>
         <div class="sep"></div>
-        <input id="toUser" placeholder="to username showing in game" autocomplete="off" />
-        <input id="amt" type="number" inputmode="numeric" placeholder="amount" />
+        <input id="toUser" placeholder="to username" autocomplete="off" />
+        <input id="amt" type="number" inputmode="decimal" placeholder="amount e.g. 1.25" />
         <button onclick="sendTransfer()">send</button>
-        <button class="btnGhost" style="margin-top:10px" onclick="createUserHint()">don’t exist yet?</button>
         <div class="small" style="margin-top:10px" id="transferHint"></div>
       </div>
     </div>
 
-    <!-- PROFILE / ADMIN -->
     <div id="page-profile" class="page">
       <div class="card">
-        <div style="font-weight:1000; letter-spacing:1px">profile</div>
+        <div style="font-weight:1000;letter-spacing:1px">me</div>
         <div class="small" style="margin-top:6px" id="profLine">—</div>
         <div class="sep"></div>
         <button class="btnBad" onclick="logout()">logout</button>
       </div>
 
       <div class="card hidden" id="adminCard">
-        <div style="font-weight:1000; letter-spacing:1px">admin (chowibz)</div>
-        <div class="small" style="margin-top:6px">set your balance (game admin power)</div>
+        <div style="font-weight:1000;letter-spacing:1px">admin (chowibz)</div>
+        <div class="small" style="margin-top:6px">set your balance</div>
         <div class="sep"></div>
-        <input id="setBal" type="number" inputmode="numeric" placeholder="new balance" />
+        <input id="setBal" type="number" inputmode="decimal" placeholder="new balance e.g. 999.99" />
         <button class="btnGold" onclick="adminSetBalance()">update balance</button>
       </div>
     </div>
@@ -385,18 +301,29 @@ button:active{transform: scale(.985)}
 <div class="toast" id="toast">—</div>
 
 <script>
-/* ====== FIREBASE CONFIG (PASTE YOURS) ====== */
+/* ====== YOUR FIREBASE CONFIG (already filled) ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyC7-SKTrNG5kMs5uoem-sun3-wUCtAYQMw",
   authDomain: "chowdolla.firebaseapp.com",
-  projectId: "chowdolla"
+  projectId: "chowdolla",
+  storageBucket: "chowdolla.firebasestorage.app",
+  messagingSenderId: "976957921591",
+  appId: "1:976957921591:web:a6adfd8203631ffc4f22b2"
 };
-/* ========================================= */
+/* ================================================== */
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const LS_KEY = "chowdolla_user_v1";
+/* cents-based economy */
+const TAP_BASE_CENTS = 5;      // 0.05
+const MINI_CENTS = 50;         // 0.50
+const BIG_CENTS  = 15;         // 0.15
+const MINI_CD_MS = 60 * 1000;  // 1 minute
+const BIG_CD_MS  = 2 * 60 * 60 * 1000; // 2 hours
+
+const LS_KEY_USER = "chowdolla_user_v2";
+const LS_KEY_HASH = "chowdolla_hash_v2";
 
 let me = null;
 let meDoc = null;
@@ -411,23 +338,11 @@ function toast(msg){
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"), 1200);
 }
+function softHaptic(){ try{ navigator.vibrate && navigator.vibrate(8); }catch(e){} }
+function setStatus(ok){ $("pillStatus").textContent = ok ? "online" : "offline"; }
 
-function softHaptic(){
-  try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
-}
-
-function setStatus(ok){
-  $("pillStatus").textContent = ok ? "online" : "offline";
-  $("pillStatus").style.color = ok ? "rgba(233,238,247,.8)" : "rgba(233,238,247,.55)";
-}
-
-function fmtCD(n){
-  const x = Math.floor(Number(n||0));
-  return x.toLocaleString("en-GB") + " CD";
-}
-
+function now(){ return Date.now(); }
 function pad2(n){ return String(n).padStart(2,"0"); }
-
 function msToMMSS(ms){
   if(ms <= 0) return "READY";
   const s = Math.ceil(ms/1000);
@@ -435,19 +350,43 @@ function msToMMSS(ms){
   const r = s % 60;
   return pad2(m) + ":" + pad2(r);
 }
+function centsToCD(c){ return (Math.floor(Number(c||0))/100).toFixed(2); }
+function fmtCDFromCents(c){ return centsToCD(c) + " CD"; }
 
-function now(){ return Date.now(); }
+function calcLevel(taps){
+  const t = Math.max(0, Math.floor(Number(taps||0)));
+  return Math.floor(t / 1000) + 1;
+}
+function perTapCents(level){
+  return TAP_BASE_CENTS * Math.max(1, Math.floor(level||1));
+}
 
-async function ensureUserDoc(username){
+async function sha256Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function cleanUsername(u){
+  u = (u||"").trim().toLowerCase();
+  if(!u) return null;
+  if(u.length < 3) return null;
+  if(!/^[a-z0-9_]+$/.test(u)) return null;
+  return u;
+}
+
+async function ensureUserDoc(username, pwHash){
   const ref = db.collection("users").doc(username);
   const snap = await ref.get();
   if(!snap.exists){
     const base = {
-      balance: 100,
+      balanceCents: 10000, // 100.00
       taps: 0,
       level: 1,
-      nextClaim20: 0,
-      nextClaim150: 0,
+      nextMini: 0,
+      nextBig: 0,
+      pwHash: pwHash,
+      isAdmin: (username === "chowibz"),
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     await ref.set(base);
@@ -455,40 +394,67 @@ async function ensureUserDoc(username){
   return ref;
 }
 
-async function doLogin(){
-  const u = $("inUser").value.trim().toLowerCase();
-  if(!u) return toast("enter a username");
-  if(u.length < 3) return toast("username too short");
-  if(!/^[a-z0-9_]+$/.test(u)) return toast("use letters/numbers/_ only");
+async function doSignup(){
+  const u = cleanUsername($("inUser").value);
+  const p = ($("inPass").value||"");
+  if(!u) return toast("bad username");
+  if(p.length < 4) return toast("password too short");
 
-  $("inUser").blur();
-  toast("logging in…");
+  $("inUser").blur(); $("inPass").blur();
 
-  try{
-    me = u;
-    localStorage.setItem(LS_KEY, me);
-    const ref = await ensureUserDoc(me);
-    startApp(ref);
-  }catch(e){
-    console.error(e);
-    toast("login failed");
-  }
+  const pwHash = await sha256Hex(u + ":" + p);
+  const ref = db.collection("users").doc(u);
+  const snap = await ref.get();
+  if(snap.exists) return toast("username taken");
+
+  await ensureUserDoc(u, pwHash);
+
+  localStorage.setItem(LS_KEY_USER, u);
+  localStorage.setItem(LS_KEY_HASH, pwHash);
+
+  me = u;
+  startApp(ref, pwHash);
+  toast("signed up");
 }
 
-function startApp(ref){
+async function doLogin(){
+  const u = cleanUsername($("inUser").value);
+  const p = ($("inPass").value||"");
+  if(!u) return toast("bad username");
+  if(!p) return toast("enter password");
+
+  $("inUser").blur(); $("inPass").blur();
+
+  const pwHash = await sha256Hex(u + ":" + p);
+  const ref = db.collection("users").doc(u);
+  const snap = await ref.get();
+  if(!snap.exists) return toast("no account. signup first");
+
+  const d = snap.data();
+  if((d.pwHash||"") !== pwHash) return toast("wrong password");
+
+  localStorage.setItem(LS_KEY_USER, u);
+  localStorage.setItem(LS_KEY_HASH, pwHash);
+
+  me = u;
+  startApp(ref, pwHash);
+  toast("logged in");
+}
+
+function startApp(ref, pwHash){
+  // hard hide login, show app (your request)
   $("loginCard").classList.add("hidden");
   $("app").classList.remove("hidden");
   $("nav").classList.remove("hidden");
 
   $("who").textContent = "@" + me;
   $("profLine").textContent = "@" + me + " • synced across devices";
-  if(me === "chowibz") $("adminCard").classList.remove("hidden");
 
   if(unsub) unsub();
   unsub = ref.onSnapshot(s=>{
     meDoc = s.data() || null;
     if(!meDoc) return;
-    render();
+    render(pwHash);
     setStatus(true);
   }, err=>{
     console.error(err);
@@ -502,79 +468,71 @@ function startApp(ref){
 }
 
 function logout(){
-  if(unsub) unsub();
-  unsub = null;
-  me = null;
-  meDoc = null;
-  localStorage.removeItem(LS_KEY);
+  if(unsub) unsub(); unsub = null;
+  me = null; meDoc = null;
+  localStorage.removeItem(LS_KEY_USER);
+  localStorage.removeItem(LS_KEY_HASH);
 
-  $("loginCard").classList.remove("hidden");
   $("app").classList.add("hidden");
   $("nav").classList.add("hidden");
+  $("loginCard").classList.remove("hidden");
   $("adminCard").classList.add("hidden");
-
+  $("inPass").value = "";
   toast("logged out");
 }
 
 function go(p){
-  const pages = ["bank","earn","transfer","profile"];
-  pages.forEach(x=>{
+  ["bank","earn","transfer","profile"].forEach(x=>{
     $("page-"+x).classList.toggle("active", x===p);
     $("nav-"+x).classList.toggle("active", x===p);
   });
 }
 
-function calcLevel(taps){
-  const t = Math.max(0, Math.floor(Number(taps||0)));
-  return Math.floor(t / 1000) + 1;
-}
-
-function render(){
-  const bal = Number(meDoc.balance||0);
+function render(pwHash){
+  const balC = Number(meDoc.balanceCents||0);
   const taps = Number(meDoc.taps||0);
-  const lvl = Number(meDoc.level||calcLevel(taps));
-  const per = lvl;
+  const lvl  = Number(meDoc.level||calcLevel(taps));
+  const ptC  = perTapCents(lvl);
 
-  $("bal").textContent = fmtCD(bal);
-  $("lvl").textContent = `level ${lvl} • +${per} per tap`;
+  $("bal").textContent = fmtCDFromCents(balC);
+  $("lvl").textContent = `level ${lvl} • +${(ptC/100).toFixed(2)} per tap`;
   $("taps").textContent = Math.floor(taps).toLocaleString("en-GB");
-  $("perTap").textContent = "+" + per;
-  $("earnTapTxt").textContent = per;
+  $("perTap").textContent = "+" + (ptC/100).toFixed(2);
+  $("earnTapTxt").textContent = (ptC/100).toFixed(2);
+
+  // chowibz admin only if the stored hash matches the doc hash AND isAdmin true
+  const isAdmin = (me === "chowibz") && (meDoc.isAdmin === true) && ((meDoc.pwHash||"") === pwHash);
+  $("adminCard").classList.toggle("hidden", !isAdmin);
 
   renderTimers();
 }
 
 function renderTimers(){
   if(!meDoc) return;
-
   const n = now();
-  const n20 = Number(meDoc.nextClaim20||0);
-  const n150 = Number(meDoc.nextClaim150||0);
 
-  const left20 = n20 - n;
-  const left150 = n150 - n;
+  const leftMini = Number(meDoc.nextMini||0) - n;
+  const leftBig  = Number(meDoc.nextBig||0) - n;
 
-  const ready20 = left20 <= 0;
-  const ready150 = left150 <= 0;
+  const readyMini = leftMini <= 0;
+  const readyBig  = leftBig <= 0;
 
-  const t20txt = ready20 ? "READY" : msToMMSS(left20);
-  const t150txt = ready150 ? "READY" : msToMMSS(left150);
+  const tMini = readyMini ? "READY" : msToMMSS(leftMini);
+  const tBig  = readyBig  ? "READY" : msToMMSS(leftBig);
 
-  // main page
-  $("t20").textContent = t20txt;
-  $("t150").textContent = t150txt;
-  $("btn20").classList.toggle("ready", ready20);
-  $("btn20").classList.toggle("locked", !ready20);
-  $("btn150").classList.toggle("ready", ready150);
-  $("btn150").classList.toggle("locked", !ready150);
+  $("t50").textContent = tMini;
+  $("t50b").textContent = tMini;
+  $("btn50").classList.toggle("ready", readyMini);
+  $("btn50").classList.toggle("locked", !readyMini);
+  $("btn50b").classList.toggle("ready", readyMini);
+  $("btn50b").classList.toggle("locked", !readyMini);
 
-  // earn page mirrors
-  $("t20b").textContent = t20txt;
-  $("t150b").textContent = t150txt;
-  $("btn20b").classList.toggle("ready", ready20);
-  $("btn20b").classList.toggle("locked", !ready20);
-  $("btn150b").classList.toggle("ready", ready150);
-  $("btn150b").classList.toggle("locked", !ready150);
+  $("t15").textContent = tBig;
+  $("t15b").textContent = tBig;
+  $("btn15").classList.toggle("ready", readyBig);
+  $("btn15").classList.toggle("locked", !readyBig);
+  $("btn15b").classList.toggle("ready", readyBig);
+  $("btn15b").classList.toggle("locked", !readyBig);
 }
 
 async function tap(){
@@ -587,12 +545,13 @@ async function tap(){
       const snap = await tx.get(ref);
       if(!snap.exists) throw "missing user";
       const d = snap.data();
+
       const taps = Math.floor(Number(d.taps||0)) + 1;
       const level = calcLevel(taps);
-      const earn = level; // per tap = level
-      const balance = Math.floor(Number(d.balance||0)) + earn;
+      const earnC = perTapCents(level); // 0.05 * level
+      const balanceCents = Math.floor(Number(d.balanceCents||0)) + earnC;
 
-      tx.update(ref, { taps, level, balance });
+      tx.update(ref, { taps, level, balanceCents });
     });
   }catch(e){
     console.error(e);
@@ -600,18 +559,17 @@ async function tap(){
   }
 }
 
-async function claim(amount){
+async function claimMini(){
+  return claimCommon("nextMini", MINI_CD_MS, MINI_CENTS, "mini");
+}
+async function claimBig(){
+  return claimCommon("nextBig", BIG_CD_MS, BIG_CENTS, "big");
+}
+async function claimCommon(field, cooldownMs, amountCents, label){
   if(!me || !meDoc) return;
   softHaptic();
 
-  const amt = Number(amount);
-  if(![20,150].includes(amt)) return;
-
-  const cooldown = (amt === 20) ? (60 * 1000) : (2 * 60 * 60 * 1000);
-  const field = (amt === 20) ? "nextClaim20" : "nextClaim150";
-
   const ref = db.collection("users").doc(me);
-
   try{
     await db.runTransaction(async tx=>{
       const snap = await tx.get(ref);
@@ -621,31 +579,34 @@ async function claim(amount){
       const next = Number(d[field]||0);
       if(next > n) throw "not ready";
 
-      const balance = Math.floor(Number(d.balance||0)) + amt;
-      tx.update(ref, { balance, [field]: n + cooldown });
+      const balanceCents = Math.floor(Number(d.balanceCents||0)) + amountCents;
+      tx.update(ref, { balanceCents, [field]: n + cooldownMs });
     });
-
-    toast("claimed +" + amt);
+    toast(`claimed +${(amountCents/100).toFixed(2)}`);
   }catch(e){
     if(String(e).includes("not ready")) return toast("not ready yet");
     console.error(e);
-    toast("claim failed");
+    toast(label + " claim failed");
   }
+}
+
+function parseAmountToCents(str){
+  const v = Number(String(str||"").replace(/,/g,"").trim());
+  if(!Number.isFinite(v)) return null;
+  return Math.floor(v * 100 + 1e-9);
 }
 
 async function sendTransfer(){
   if(!me || !meDoc) return;
 
-  const to = $("toUser").value.trim().toLowerCase();
-  const amt = Math.floor(Number($("amt").value));
+  const to = cleanUsername($("toUser").value);
+  const amtC = parseAmountToCents($("amt").value);
   $("transferHint").textContent = "";
 
-  if(!to) return toast("enter a username");
-  if(to === me) return toast("you can’t send to yourself");
-  if(!/^[a-z0-9_]+$/.test(to)) return toast("bad username");
-  if(!amt || amt <= 0) return toast("enter amount");
-  if(amt > 1e12) return toast("nah too big");
-  if(Number(meDoc.balance||0) < amt) return toast("not enough CD");
+  if(!to) return toast("enter username");
+  if(to === me) return toast("can’t send to yourself");
+  if(amtC === null || amtC <= 0) return toast("enter amount");
+  if(Number(meDoc.balanceCents||0) < amtC) return toast("not enough CD");
 
   softHaptic();
 
@@ -659,55 +620,58 @@ async function sendTransfer(){
       if(!fromSnap.exists) throw "missing sender";
       if(!toSnap.exists) throw "user not found";
 
-      const fromBal = Math.floor(Number(fromSnap.data().balance||0));
-      const toBal = Math.floor(Number(toSnap.data().balance||0));
-      if(fromBal < amt) throw "no funds";
+      const fromBal = Math.floor(Number(fromSnap.data().balanceCents||0));
+      const toBal = Math.floor(Number(toSnap.data().balanceCents||0));
+      if(fromBal < amtC) throw "no funds";
 
-      tx.update(fromRef, { balance: fromBal - amt });
-      tx.update(toRef, { balance: toBal + amt });
+      tx.update(fromRef, { balanceCents: fromBal - amtC });
+      tx.update(toRef, { balanceCents: toBal + amtC });
     });
 
     $("amt").value = "";
-    toast("sent " + amt + " CD to @" + to);
+    toast(`sent ${(amtC/100).toFixed(2)} to @${to}`);
   }catch(e){
     console.error(e);
     if(String(e).includes("user not found")){
-      $("transferHint").textContent = "that user doesn’t exist yet. tell them to log in once so their account gets created";
+      $("transferHint").textContent = "that user doesn’t exist yet. tell them to signup/login once first";
       return toast("user not found");
     }
     toast("transfer failed");
   }
 }
 
-function createUserHint(){
-  $("transferHint").textContent = "tell them to open the app and log in once using their username. then you can send to them";
-  toast("done");
-}
-
 async function adminSetBalance(){
-  if(me !== "chowibz") return toast("nope");
-  const v = Math.floor(Number($("setBal").value));
-  if(!Number.isFinite(v)) return toast("enter a number");
-  if(v < 0) return toast("can’t be negative");
+  // only chowibz and only if logged in legit (checked in render)
+  if(me !== "chowibz" || !meDoc || meDoc.isAdmin !== true) return toast("nope");
+
+  const newC = parseAmountToCents($("setBal").value);
+  if(newC === null || newC < 0) return toast("enter a valid number");
 
   const ref = db.collection("users").doc(me);
   try{
-    await ref.update({ balance: v });
-    toast("balance updated");
+    await ref.update({ balanceCents: newC });
     $("setBal").value = "";
+    toast("balance updated");
   }catch(e){
     console.error(e);
     toast("failed");
   }
 }
 
-/* auto login */
-(function boot(){
-  const saved = localStorage.getItem(LS_KEY);
-  if(saved){
-    me = saved;
-    ensureUserDoc(me).then(ref=>startApp(ref)).catch(()=>{ localStorage.removeItem(LS_KEY); });
-  }
+/* auto session restore */
+(async function boot(){
+  const u = localStorage.getItem(LS_KEY_USER);
+  const h = localStorage.getItem(LS_KEY_HASH);
+  if(!u || !h) return;
+
+  const ref = db.collection("users").doc(u);
+  const snap = await ref.get().catch(()=>null);
+  if(!snap || !snap.exists) { localStorage.removeItem(LS_KEY_USER); localStorage.removeItem(LS_KEY_HASH); return; }
+  const d = snap.data();
+  if((d.pwHash||"") !== h) { localStorage.removeItem(LS_KEY_USER); localStorage.removeItem(LS_KEY_HASH); return; }
+
+  me = u;
+  startApp(ref, h);
 })();
 </script>
 </body>
