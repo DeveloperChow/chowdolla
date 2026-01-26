@@ -17,27 +17,85 @@ html,body{margin:0;height:100%;background:#05070b;color:#e8edf6;font-family:-app
 }
 
 .app{height:100%;display:flex;flex-direction:column}
-.page{flex:1;display:none;padding:14px}
+.page{flex:1;display:none;padding:14px;overflow:hidden}
 .page.active{display:block}
-.card{background:linear-gradient(180deg,var(--card),var(--card2));border-radius:22px;padding:14px;margin-bottom:12px}
+.card{
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border-radius:22px;padding:14px;margin-bottom:12px;
+  border:1px solid rgba(255,255,255,.08);
+}
 h1{font-size:18px;margin:0}
 .small{font-size:12px;color:var(--muted)}
-.btn{background:var(--accent);border:none;color:white;padding:10px 14px;border-radius:14px;font-weight:700}
-.btn.dark{background:#101b30}
-.row{display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
-.nav{padding:10px;background:#05070b}
-.navRow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.navBtn{background:#0d1626;border-radius:14px;padding:10px 0;text-align:center;font-size:12px;color:#9aa3b2}
-.navBtn.active{background:var(--accent);color:white}
+.btn{
+  background:var(--accent);
+  border:none;color:white;
+  padding:10px 14px;border-radius:14px;
+  font-weight:700;
+}
+.btn.dark{background:#101b30}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{opacity:.45}
 
 .list{margin-top:8px}
-.item{padding:10px;border-radius:14px;background:#0e182a;margin-bottom:8px}
+.scrollBox{max-height:42vh;overflow:auto;-webkit-overflow-scrolling:touch}
+.item{padding:10px;border-radius:14px;background:#0e182a;margin-bottom:8px;border:1px solid rgba(255,255,255,.06)}
 
-input{width:100%;padding:10px;border-radius:12px;border:none;background:#0d1626;color:white}
-
+input{width:100%;padding:10px;border-radius:12px;border:none;background:#0d1626;color:white;border:1px solid rgba(255,255,255,.08)}
 canvas{background:#000;border-radius:12px}
+
+.nav{padding:10px;background:#05070b;border-top:1px solid rgba(255,255,255,.06)}
+.navRow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.navBtn{
+  background:#0d1626;border-radius:14px;padding:10px 0;text-align:center;
+  font-size:12px;color:#9aa3b2;user-select:none;
+}
+.navBtn.active{background:var(--accent);color:white}
+
+/* --- BIG RED TAP BUTTON (like your pic) --- */
+.tapWrap{display:flex;justify-content:center;margin:14px 0 6px}
+.tapBtn{
+  width:min(320px, 92vw);
+  height:98px;
+  border-radius:26px;
+  border:none;
+  position:relative;
+  background:
+    radial-gradient(60% 80% at 50% 25%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+    linear-gradient(180deg, #ff5a4f 0%, #e91717 55%, #b00a0a 100%);
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.45),
+    inset 0 -10px 18px rgba(0,0,0,.25);
+}
+.tapBtn:active{transform:translateY(2px) scale(.99)}
+.tapBase{
+  width:min(340px, 96vw);
+  height:28px;
+  margin:-18px auto 0;
+  border-radius:18px;
+  background:linear-gradient(180deg,#e9edf6,#cfd6e6);
+  opacity:.95;
+  box-shadow:0 8px 18px rgba(0,0,0,.35);
+}
+.tapArrow{
+  position:absolute;
+  left:50%;top:52%;
+  transform:translate(-50%,-50%);
+  width:54px;height:54px;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.45));
+}
+.tapLabel{
+  text-align:center;
+  font-weight:800;
+  letter-spacing:.3px;
+  margin-top:6px;
+  color:#cfe0ff;
+  font-size:13px;
+}
+hr.sep{border:none;height:1px;background:rgba(255,255,255,.08);margin:10px 0}
 </style>
 </head>
 
@@ -45,226 +103,428 @@ canvas{background:#000;border-radius:12px}
 <div class="app">
 
 <!-- HOME -->
-<div class="page active" id="home">
+<div class="page active" id="page-home">
   <div class="card">
     <div class="small">Balance</div>
     <h1>£<span id="bal">0.00</span></h1>
-    <button class="btn" onclick="tap()">TAP +£0.05</button>
     <div class="small">Taps: <span id="taps">0</span></div>
+
+    <div class="tapWrap">
+      <button class="tapBtn" id="tapBtn" type="button">
+        <!-- arrow -->
+        <svg class="tapArrow" viewBox="0 0 64 64" aria-hidden="true">
+          <path fill="#ffffff" d="M28 6h8v28h12L32 58 16 34h12z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="tapBase"></div>
+    <div class="tapLabel">tap to earn +£0.05</div>
   </div>
 
   <div class="card">
     <h1>Bonuses</h1>
     <div class="grid" id="bonusGrid"></div>
+    <div class="small" style="margin-top:8px">cooldowns show on each button</div>
   </div>
 </div>
 
 <!-- PAY -->
-<div class="page" id="pay">
+<div class="page" id="page-pay">
   <div class="card">
     <h1>Send money</h1>
+    <div class="small">this is local-only demo, “send” just logs a transaction</div>
+    <hr class="sep">
     <input id="payTo" placeholder="username">
-    <input id="payAmt" placeholder="amount">
-    <button class="btn" onclick="sendMoney()">Send</button>
+    <div style="height:8px"></div>
+    <input id="payAmt" placeholder="amount e.g. 2.50" inputmode="decimal">
+    <div style="height:10px"></div>
+    <button class="btn" id="sendBtn" type="button">Send</button>
   </div>
 
   <div class="card">
-    <h1>Transactions</h1>
-    <div id="txList" class="list"></div>
+    <div class="row">
+      <h1>Transactions</h1>
+      <button class="btn dark" id="clearTxBtn" type="button">Clear</button>
+    </div>
+    <div class="scrollBox list" id="txList"></div>
   </div>
 </div>
 
 <!-- CHAT -->
-<div class="page" id="chat">
+<div class="page" id="page-chat">
   <div class="card">
-    <h1>Chat</h1>
-    <input id="chatMsg" placeholder="message">
-    <button class="btn" onclick="sendChat()">Send</button>
+    <div class="row">
+      <h1>Chat</h1>
+      <button class="btn dark" id="clearChatBtn" type="button">Clear</button>
+    </div>
+    <div class="small">local history</div>
+    <hr class="sep">
+    <input id="chatMsg" placeholder="message…">
+    <div style="height:10px"></div>
+    <button class="btn" id="chatSendBtn" type="button">Send</button>
   </div>
   <div class="card">
-    <div id="chatList" class="list"></div>
+    <h1>History</h1>
+    <div class="scrollBox list" id="chatList"></div>
   </div>
 </div>
 
 <!-- ASSETS -->
-<div class="page" id="assets">
+<div class="page" id="page-assets">
   <div class="card">
     <h1>Assets</h1>
     <div class="item">
       🎮 Game Console<br>
       <span class="small">Unlock at 40 taps</span><br><br>
-      <button class="btn dark" onclick="openConsole()">Open</button>
+      <button class="btn dark" id="openConsoleBtn" type="button">Open</button>
     </div>
   </div>
 
   <div class="card" id="gameCard" style="display:none">
-    <h1>Flappy Bird</h1>
-    <canvas id="game" width="300" height="400"></canvas><br><br>
-    <button class="btn dark" onclick="closeGame()">Close</button>
+    <div class="row">
+      <h1>Flappy Bird</h1>
+      <button class="btn dark" id="closeGameBtn" type="button">Close</button>
+    </div>
+    <div class="small">tap the game to jump</div>
+    <div style="height:10px"></div>
+    <canvas id="game" width="300" height="400"></canvas>
   </div>
 </div>
 
 <!-- ME -->
-<div class="page" id="me">
+<div class="page" id="page-me">
   <div class="card">
-    <h1>@chowibz</h1>
-    <button class="btn" onclick="adminAdd()">Admin add money</button>
+    <div class="row">
+      <div>
+        <h1 id="meUser">@chowibz</h1>
+        <div class="small">fake money game</div>
+      </div>
+      <button class="btn dark" id="resetBtn" type="button">Reset</button>
+    </div>
   </div>
+
   <div class="card">
-    <div class="item" onclick="logout()">Log out</div>
+    <h1>Admin</h1>
+    <div class="small">adds money to your wallet (local)</div>
+    <div style="height:10px"></div>
+    <button class="btn" id="adminAddBtn" type="button">Admin add money</button>
+  </div>
+
+  <div class="card">
+    <button class="btn dark" id="logoutBtn" type="button">Log out</button>
   </div>
 </div>
 
 <!-- NAV -->
 <div class="nav">
   <div class="navRow">
-    <div class="navBtn active" onclick="go('home')">Home</div>
-    <div class="navBtn" onclick="go('pay')">Pay</div>
-    <div class="navBtn" onclick="go('chat')">Chat</div>
-    <div class="navBtn" onclick="go('assets')">Assets</div>
-    <div class="navBtn" onclick="go('me')">Me</div>
+    <div class="navBtn active" data-page="home">Home</div>
+    <div class="navBtn" data-page="pay">Pay</div>
+    <div class="navBtn" data-page="chat">Chat</div>
+    <div class="navBtn" data-page="assets">Assets</div>
+    <div class="navBtn" data-page="me">Me</div>
   </div>
 </div>
 
 </div>
 
 <script>
-/* ---------- STATE ---------- */
-let bal=Number(localStorage.bal||0);
-let taps=Number(localStorage.taps||0);
-let tx=JSON.parse(localStorage.tx||"[]");
-let chats=JSON.parse(localStorage.chats||"[]");
+/* ---------- STATE (local) ---------- */
+let bal = Number(localStorage.getItem("bal") || 0);
+let taps = Number(localStorage.getItem("taps") || 0);
+let tx = JSON.parse(localStorage.getItem("tx") || "[]");
+let chats = JSON.parse(localStorage.getItem("chats") || "[]");
 
-/* ---------- HOME ---------- */
-function tap(){
-  taps++;
-  bal+=0.05;
-  save();
-}
-const bonuses=[
-  {amt:2,cd:600},
-  {amt:5,cd:1800},
-  {amt:10,cd:3600}
+/* ---------- BONUSES ---------- */
+const bonuses = [
+  { label:"+£2",  amt:2,  cd:10*60, key:"b0" },   // 10 min
+  { label:"+£5",  amt:5,  cd:30*60, key:"b1" },   // 30 min
+  { label:"+£10", amt:10, cd:60*60, key:"b2" }    // 1 hour
 ];
 
+/* ---------- DOM ---------- */
+const $ = (id)=>document.getElementById(id);
+
+function save(){
+  localStorage.setItem("bal", String(bal));
+  localStorage.setItem("taps", String(taps));
+  localStorage.setItem("tx", JSON.stringify(tx));
+  localStorage.setItem("chats", JSON.stringify(chats));
+}
+
+function formatMoney(n){
+  return (Math.round(n*100)/100).toFixed(2);
+}
+
+/* ---------- RENDER ---------- */
+function renderHome(){
+  $("bal").textContent = formatMoney(bal);
+  $("taps").textContent = taps;
+}
+
 function renderBonuses(){
-  bonusGrid.innerHTML="";
-  bonuses.forEach((b,i)=>{
-    const last=Number(localStorage["b"+i]||0);
-    const left=b.cd-(Date.now()/1000-last);
-    const btn=document.createElement("button");
-    btn.className="btn dark";
-    btn.innerHTML=`+£${b.amt}<br><span class="small">${left>0?Math.ceil(left/60)+"m":"READY"}</span>`;
-    btn.onclick=()=>claimBonus(i);
-    if(left>0)btn.style.opacity=.4;
-    bonusGrid.appendChild(btn);
+  const grid = $("bonusGrid");
+  grid.innerHTML = "";
+  const now = Date.now()/1000;
+
+  bonuses.forEach((b)=>{
+    const last = Number(localStorage.getItem(b.key) || 0);
+    const left = Math.max(0, b.cd - (now - last));
+    const ready = left <= 0;
+
+    const btn = document.createElement("button");
+    btn.className = "btn dark";
+    btn.type = "button";
+    btn.style.borderRadius = "14px";
+    btn.style.padding = "12px 8px";
+    btn.innerHTML = `
+      <div style="font-weight:900">${b.label}</div>
+      <div class="small" style="margin-top:4px">${ready ? "READY" : (Math.ceil(left/60)+"m")}</div>
+    `;
+    btn.disabled = !ready;
+    btn.addEventListener("click", ()=>claimBonus(b));
+    grid.appendChild(btn);
   });
 }
-function claimBonus(i){
-  const b=bonuses[i];
-  const last=Number(localStorage["b"+i]||0);
-  if(Date.now()/1000-last<b.cd)return;
-  bal+=b.amt;
-  localStorage["b"+i]=Date.now()/1000;
-  save();
-}
 
-/* ---------- PAY ---------- */
-function sendMoney(){
-  const to=payTo.value;
-  const amt=Number(payAmt.value);
-  if(!to||!amt||amt<=0||amt>bal)return;
-  bal-=amt;
-  tx.unshift({to,amt,time:new Date().toLocaleString()});
-  save();
-}
 function renderTx(){
-  txList.innerHTML=tx.map(t=>`
-    <div class="item">To ${t.to} £${t.amt}<br><span class="small">${t.time}</span></div>
+  const box = $("txList");
+  if(!tx.length){
+    box.innerHTML = `<div class="small">no transactions yet</div>`;
+    return;
+  }
+  box.innerHTML = tx.map(t=>`
+    <div class="item">
+      <div style="font-weight:800">To ${escapeHtml(t.to)} • £${formatMoney(t.amt)}</div>
+      <div class="small">${escapeHtml(t.time)}</div>
+    </div>
   `).join("");
 }
 
-/* ---------- CHAT ---------- */
-function sendChat(){
-  const m=chatMsg.value;
-  if(!m)return;
-  chats.unshift({m,time:new Date().toLocaleTimeString()});
-  chatMsg.value="";
-  save();
-}
 function renderChat(){
-  chatList.innerHTML=chats.map(c=>`
-    <div class="item">${c.m}<br><span class="small">${c.time}</span></div>
+  const box = $("chatList");
+  if(!chats.length){
+    box.innerHTML = `<div class="small">no messages yet</div>`;
+    return;
+  }
+  box.innerHTML = chats.map(c=>`
+    <div class="item">
+      <div style="font-weight:700">${escapeHtml(c.m)}</div>
+      <div class="small">${escapeHtml(c.time)}</div>
+    </div>
   `).join("");
 }
 
-/* ---------- ASSET GAME ---------- */
-let gameInt;
-function openConsole(){
-  if(taps<40)return alert("Need 40 taps");
-  gameCard.style.display="block";
-  startGame();
-}
-function closeGame(){
-  gameCard.style.display="none";
-  clearInterval(gameInt);
-}
-function startGame(){
-  const c=game.getContext("2d");
-  let y=200,vy=0,pipe=300,score=0;
-  gameInt=setInterval(()=>{
-    c.clearRect(0,0,300,400);
-    vy+=0.5;y+=vy;
-    pipe-=2;if(pipe<0)pipe=300;
-    c.fillStyle="green";c.fillRect(pipe,0,40,150);
-    c.fillRect(pipe,250,40,200);
-    c.fillStyle="yellow";c.fillRect(50,y,20,20);
-    if(y>380||y<0||(
-      pipe<70&&pipe>10&&(y<150||y>250)
-    )){clearInterval(gameInt);alert("Game over")}
-  },30);
-  game.onclick=()=>vy=-6;
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
 }
 
-/* ---------- ADMIN ---------- */
-function adminAdd(){
-  const v=Number(prompt("Amount"));
-  if(!v)return;
-  bal+=v;
-  save();
-}
-
-/* ---------- CORE ---------- */
-function save(){
-  localStorage.bal=bal;
-  localStorage.taps=taps;
-  localStorage.tx=JSON.stringify(tx);
-  localStorage.chats=JSON.stringify(chats);
-  render();
-}
-function render(){
-  balEl.textContent=bal.toFixed(2);
-  tapsEl.textContent=taps;
+function renderAll(){
+  renderHome();
   renderBonuses();
   renderTx();
   renderChat();
 }
-function go(p){
-  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-  document.querySelectorAll(".navBtn").forEach(x=>x.classList.remove("active"));
-  document.getElementById(p).classList.add("active");
-  [...document.querySelectorAll(".navBtn")].find(b=>b.textContent.toLowerCase()==p).classList.add("active");
-}
-function logout(){
-  localStorage.clear();
-  location.reload();
+
+/* ---------- ACTIONS ---------- */
+function tap(){
+  taps++;
+  bal += 0.05;
+  save();
+  renderAll();
 }
 
-/* ---------- INIT ---------- */
-const balEl=document.getElementById("bal");
-const tapsEl=document.getElementById("taps");
-render();
-setInterval(renderBonuses,1000);
+function claimBonus(b){
+  const now = Date.now()/1000;
+  const last = Number(localStorage.getItem(b.key) || 0);
+  if(now - last < b.cd) return;
+  bal += b.amt;
+  localStorage.setItem(b.key, String(now));
+  save();
+  renderAll();
+}
+
+function sendMoney(){
+  const to = ($("payTo").value || "").trim();
+  const amt = Number(($("payAmt").value || "").replace(/,/g,""));
+  if(!to) return alert("enter username");
+  if(!Number.isFinite(amt) || amt<=0) return alert("enter a valid amount");
+  if(amt > bal) return alert("not enough balance");
+
+  bal -= amt;
+  tx.unshift({to, amt, time: new Date().toLocaleString()});
+  $("payAmt").value = "";
+  save();
+  renderAll();
+}
+
+function sendChat(){
+  const m = ($("chatMsg").value || "").trim();
+  if(!m) return;
+  chats.unshift({m, time: new Date().toLocaleTimeString()});
+  $("chatMsg").value = "";
+  save();
+  renderAll();
+}
+
+function clearTx(){
+  if(!confirm("clear transactions?")) return;
+  tx = [];
+  save();
+  renderAll();
+}
+
+function clearChat(){
+  if(!confirm("clear chat?")) return;
+  chats = [];
+  save();
+  renderAll();
+}
+
+/* ---------- GAME (console) ---------- */
+let gameInt = null;
+
+function openConsole(){
+  if(taps < 40) return alert("Need 40 taps to unlock");
+  $("gameCard").style.display = "block";
+  startGame();
+}
+
+function closeGame(){
+  $("gameCard").style.display = "none";
+  if(gameInt) clearInterval(gameInt);
+  gameInt = null;
+}
+
+function startGame(){
+  const canvas = $("game");
+  const c = canvas.getContext("2d");
+
+  let y = 200, vy = 0;
+  let pipeX = 320;
+  let gapTop = 140;
+  let score = 0;
+
+  function resetPipe(){
+    pipeX = 320;
+    gapTop = 80 + Math.floor(Math.random()*140);
+  }
+
+  if(gameInt) clearInterval(gameInt);
+
+  canvas.onclick = ()=>{ vy = -6; };
+
+  resetPipe();
+
+  gameInt = setInterval(()=>{
+    // physics
+    vy += 0.45;
+    y += vy;
+    pipeX -= 2.2;
+
+    if(pipeX < -60){
+      resetPipe();
+      score++;
+    }
+
+    // draw
+    c.clearRect(0,0,canvas.width,canvas.height);
+    c.fillStyle = "#06101f";
+    c.fillRect(0,0,canvas.width,canvas.height);
+
+    // pipes
+    c.fillStyle = "#2bd36b";
+    c.fillRect(pipeX, 0, 52, gapTop);
+    c.fillRect(pipeX, gapTop+120, 52, 400-(gapTop+120));
+
+    // bird
+    c.fillStyle = "#ffd34a";
+    c.fillRect(60, y, 20, 20);
+
+    // score
+    c.fillStyle = "#cfe0ff";
+    c.font = "700 16px system-ui";
+    c.fillText("Score: "+score, 12, 22);
+
+    // collision
+    const birdTop = y, birdBot = y+20;
+    const inPipeX = (pipeX < 80 && pipeX+52 > 60);
+
+    if(birdBot > 400 || birdTop < 0) return gameOver();
+    if(inPipeX){
+      const hitTop = birdTop < gapTop;
+      const hitBot = birdBot > gapTop+120;
+      if(hitTop || hitBot) return gameOver();
+    }
+  }, 30);
+
+  function gameOver(){
+    clearInterval(gameInt);
+    gameInt = null;
+    alert("Game over");
+  }
+}
+
+/* ---------- ADMIN / RESET / LOGOUT ---------- */
+function adminAdd(){
+  const v = Number(prompt("Amount to add (£)"));
+  if(!Number.isFinite(v) || v<=0) return;
+  bal += v;
+  save();
+  renderAll();
+}
+
+function resetAll(){
+  if(!confirm("reset everything?")) return;
+  localStorage.clear();
+  bal = 0; taps = 0; tx = []; chats = [];
+  renderAll();
+}
+
+function logout(){
+  // same as reset? user wanted logout -> wipe session
+  if(!confirm("log out? (clears local data)")) return;
+  resetAll();
+}
+
+/* ---------- NAV (100% working) ---------- */
+function go(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".navBtn").forEach(b=>b.classList.remove("active"));
+
+  const pg = document.getElementById("page-"+page);
+  if(pg) pg.classList.add("active");
+
+  const btn = document.querySelector(`.navBtn[data-page="${page}"]`);
+  if(btn) btn.classList.add("active");
+}
+
+/* ---------- WIRE UP BUTTONS (no inline onclick mistakes) ---------- */
+$("tapBtn").addEventListener("click", tap);
+$("sendBtn").addEventListener("click", sendMoney);
+$("chatSendBtn").addEventListener("click", sendChat);
+$("clearTxBtn").addEventListener("click", clearTx);
+$("clearChatBtn").addEventListener("click", clearChat);
+$("openConsoleBtn").addEventListener("click", openConsole);
+$("closeGameBtn").addEventListener("click", closeGame);
+$("adminAddBtn").addEventListener("click", adminAdd);
+$("resetBtn").addEventListener("click", resetAll);
+$("logoutBtn").addEventListener("click", logout);
+
+document.querySelectorAll(".navBtn").forEach(b=>{
+  b.addEventListener("click", ()=>go(b.dataset.page));
+});
+
+/* stop iOS pinch zoom best-effort */
+document.addEventListener("gesturestart", e => e.preventDefault());
+document.addEventListener("gesturechange", e => e.preventDefault());
+document.addEventListener("gestureend", e => e.preventDefault());
+
+/* init */
+renderAll();
+setInterval(renderBonuses, 1000);
 </script>
 </body>
 </html>
