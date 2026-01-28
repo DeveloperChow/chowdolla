@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ChowDolla</title>
+
+<!-- iOS ICON FIX -->
+<link rel="apple-touch-icon" href="img_0000512.png">
+<link rel="icon" href="img_0000512.png">
+
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text"}
+body{
+margin:0;
+background:radial-gradient(120% 120% at 50% 20%,#2b2233,#050507);
+color:#fff;
+height:100vh;
+overflow:hidden;
+}
+
+/* GLASS */
+.glass{
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+border-radius:24px;
+border:1px solid rgba(255,255,255,.12);
+}
+
+/* LOGIN */
+#login{
+position:fixed;inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+#login .card{
+width:88%;
+max-width:420px;
+padding:24px;
+}
+input{
+width:100%;
+padding:14px;
+margin:8px 0;
+border-radius:14px;
+border:none;
+background:rgba(255,255,255,.12);
+color:#fff;
+}
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:16px;
+background:#3b82f6;
+color:#fff;
+font-weight:600;
+}
+
+/* APP */
+#app{display:none;height:100%}
+header{
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+.balance{
+font-size:36px;
+font-weight:700;
+margin:10px 0;
+}
+.tap{
+margin:16px;
+padding:22px;
+text-align:center;
+font-size:20px;
+}
+
+/* NAV */
+nav{
+position:fixed;
+bottom:0;
+left:0;right:0;
+padding:10px;
+display:flex;
+gap:8px;
+}
+nav button{
+flex:1;
+background:rgba(255,255,255,.08);
+}
+
+/* SCREENS */
+.screen{display:none;padding-bottom:90px}
+.screen.active{display:block}
+
+/* LIST */
+.item{
+margin:12px;
+padding:16px;
+}
+.plus{
+position:absolute;
+right:20px;
+top:20px;
+font-size:22px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="card glass">
+    <h2>ChowDolla</h2>
+    <input placeholder="Email">
+    <input type="password" placeholder="Password">
+    <button onclick="start()">Login / Signup</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<header>
+  <div>CD Fake Money Game</div>
+  <div class="plus" onclick="adminAdd()">＋</div>
+</header>
+
+<div class="screen active" id="home">
+  <div class="balance">£<span id="money">0.00</span></div>
+  <div class="glass tap" onclick="tap()">TAP +£0.05</div>
+</div>
+
+<div class="screen" id="jobs"></div>
+<div class="screen" id="assets"></div>
+<div class="screen" id="me"></div>
+
+<nav class="glass">
+  <button onclick="show('home')">Home</button>
+  <button onclick="show('jobs')">Jobs</button>
+  <button onclick="show('assets')">Assets</button>
+  <button onclick="show('me')">Me</button>
+</nav>
+</div>
+
+<script>
+let money = Number(localStorage.money||0);
+let admin = true;
+
+const jobs=[
+{n:"Uber Driver",t:500,p:6},
+{n:"Uber Pro",t:700,p:6.5},
+{n:"Uber Premium",t:800,p:8},
+{n:"Delivery Rider",t:400,p:5},
+{n:"Retail Worker",t:300,p:4.5},
+{n:"Store Manager",t:900,p:9},
+];
+
+function start(){
+login.style.display="none";
+app.style.display="block";
+render();
+}
+
+function tap(){
+money+=0.05;
+save();
+}
+
+function save(){
+localStorage.money=money;
+render();
+}
+
+function render(){
+moneyEl.innerText=money.toFixed(2);
+jobsEl.innerHTML="";
+jobs.forEach(j=>{
+jobsEl.innerHTML+=`
+<div class="glass item">
+<b>${j.n}</b><br>
+Requires ${j.t} taps<br>
+£${j.p}/day
+</div>`;
+});
+}
+
+function show(id){
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+}
+
+function adminAdd(){
+if(!admin)return;
+alert("Admin add panel (next step)");
+}
+
+const moneyEl=document.getElementById("money");
+const jobsEl=document.getElementById("jobs");
+</script>
+
+</body>
+</html>
