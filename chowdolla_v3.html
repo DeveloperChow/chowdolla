@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<title>ChowDolla</title>
+
+<meta name="theme-color" content="#120a1f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+<!-- If you already have these files in your repo, keep them -->
+<link rel="apple-touch-icon" href="icon-192.png" />
+
+<style>
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;color:#fff;background:#0b0d12}
+
+/* Purple dark background like your screenshot vibe */
+.bg{
+position:fixed;inset:0;
+background:
+radial-gradient(900px 700px at 20% 5%, rgba(150,90,255,.28), transparent 60%),
+radial-gradient(900px 700px at 80% 0%, rgba(255,80,160,.22), transparent 55%),
+radial-gradient(1100px 900px at 60% 90%, rgba(90,140,255,.22), transparent 60%),
+radial-gradient(circle at bottom, #3b245c, #120a1f 65%, #090913 100%);
+filter:saturate(1.05);
+}
+
+/* App container */
+.app{position:relative;height:100%;padding:18px;padding-bottom:110px}
+
+/* iOS 26-ish glass */
+.glass{
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(26px);
+-webkit-backdrop-filter:blur(26px);
+border:1px solid rgba(255,255,255,.10);
+box-shadow:0 18px 50px rgba(0,0,0,.35);
+border-radius:28px;
+}
+
+/* Top bar */
+.top{
+display:flex;align-items:center;justify-content:space-between;
+margin-bottom:14px;
+}
+.brand strong{font-size:18px}
+.brand small{opacity:.6;letter-spacing:.5px}
+.plus{
+width:40px;height:40px;border-radius:14px;
+display:flex;align-items:center;justify-content:center;
+background:rgba(255,255,255,.10);
+border:1px solid rgba(255,255,255,.10);
+font-size:26px;cursor:pointer;user-select:none;
+}
+
+/* Screens */
+.screen{
+position:absolute;left:0;right:0;top:70px;bottom:110px;
+padding:18px;display:none;overflow:hidden;
+}
+.screen.active{display:block}
+
+/* Home pieces */
+.card{padding:18px;margin-bottom:16px}
+.balance{font-size:44px;font-weight:800;letter-spacing:-.5px}
+.muted{opacity:.65}
+
+.tap{
+width:100%;padding:20px;border-radius:22px;border:none;
+font-size:20px;font-weight:700;cursor:pointer;
+background:linear-gradient(135deg,#6f3cff,#3a1c7a);
+color:#fff;
+box-shadow:0 12px 30px rgba(111,60,255,.22);
+}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.btn{
+padding:14px;border-radius:18px;text-align:center;cursor:pointer;
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.10);
+user-select:none;
+}
+.btn small{opacity:.7}
+
+/* Bottom nav */
+.nav{
+position:fixed;left:10px;right:10px;bottom:10px;
+padding:12px;display:flex;gap:10px;z-index:50;
+background:rgba(255,255,255,.12);
+backdrop-filter:blur(26px);
+-webkit-backdrop-filter:blur(26px);
+border-radius:26px;
+border:1px solid rgba(255,255,255,.10);
+}
+.nav .item{
+flex:1;text-align:center;font-size:13px;opacity:.55;cursor:pointer;
+padding:10px 0;border-radius:16px;user-select:none;
+}
+.nav .item.active{opacity:1;font-weight:700;background:rgba(255,255,255,.08)}
+
+/* Modal */
+.modal{
+position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+background:rgba(0,0,0,.62);
+z-index:200;
+}
+.modal .box{
+width:min(92vw,420px);
+padding:18px;
+}
+.modal h3{margin:0 0 8px 0}
+.modal .row{display:flex;gap:10px}
+.modal button, .modal input{
+width:100%;padding:16px;border-radius:18px;border:none;
+background:rgba(255,255,255,.12);
+color:#fff;font-size:16px;
+border:1px solid rgba(255,255,255,.10);
+}
+.modal input{outline:none}
+.modal .danger{background:rgba(255,80,120,.20)}
+.modal .good{background:rgba(90,160,255,.18)}
+.modal .close{opacity:.8}
+
+/* Login screen (like your glass login pic) */
+.loginWrap{
+position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+padding:22px;
+}
+.loginCard{
+width:min(92vw,420px);
+padding:22px;
+border-radius:34px;
+background:rgba(255,255,255,.10);
+backdrop-filter:blur(28px);
+-webkit-backdrop-filter:blur(28px);
+border:1px solid rgba(255,255,255,.12);
+box-shadow:0 24px 80px rgba(0,0,0,.45);
+}
+.avatar{
+width:78px;height:78px;border-radius:26px;margin:6px auto 14px;
+background:rgba(255,255,255,.12);
+display:flex;align-items:center;justify-content:center;
+font-size:34px;
+}
+.field{
+display:flex;align-items:center;gap:10px;
+padding:14px 14px;border-radius:18px;margin-top:12px;
+background:rgba(0,0,0,.18);
+border:1px solid rgba(255,255,255,.10);
+}
+.field span{opacity:.75}
+.field input{
+flex:1;background:transparent;border:none;outline:none;color:#fff;
+font-size:16px;
+}
+.loginRow{
+display:flex;justify-content:space-between;align-items:center;
+margin-top:12px;font-size:13px;opacity:.75
+}
+.loginBtn{
+width:100%;margin-top:16px;
+padding:16px;border-radius:20px;border:none;
+font-weight:800;letter-spacing:.6px;
+background:linear-gradient(90deg,rgba(255,80,160,.40),rgba(90,140,255,.40));
+color:#fff;
+}
+.smallLink{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hidden{display:none!important}
+</style>
+</head>
+
+<body>
+<div class="bg"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="loginWrap">
+  <div class="loginCard">
+    <div class="avatar">👤</div>
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:18px;font-weight:800">ChowDolla</div>
+      <div style="opacity:.65;font-size:12px;letter-spacing:.8px">FAKE MONEY GAME</div>
+    </div>
+
+    <div class="field">
+      <span>✉️</span>
+      <input id="email" autocomplete="username" placeholder="Email ID" />
+    </div>
+
+    <div class="field">
+      <span>🔒</span>
+      <input id="pass" type="password" autocomplete="current-password" placeholder="Password" />
+    </div>
+
+    <div class="loginRow">
+      <div><input id="remember" type="checkbox" checked /> <span>Remember me</span></div>
+      <div class="smallLink" onclick="toast('no stress, this is a fake login 😭')">Forgot Password?</div>
+    </div>
+
+    <button class="loginBtn" onclick="login()">LOGIN</button>
+    <div style="text-align:center;margin-top:10px;opacity:.65;font-size:12px">
+      tip: use any email + any password
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appRoot" class="app hidden">
+
+  <div class="top">
+    <div class="brand">
+      <strong>ChowDolla</strong><br><small id="subtitle">FAKE MONEY GAME</small>
+    </div>
+    <div class="plus" onclick="openAdmin()">＋</div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="screen active">
+    <div class="glass card">
+      <div class="muted">Balance</div>
+      <div id="balance" class="balance">£0.00</div>
+      <div class="muted" style="margin-top:6px" id="usernameLine"></div>
+    </div>
+
+    <button class="tap" onclick="tap()">TAP +£0.05</button>
+
+    <div class="glass card">
+      <div class="grid">
+        <div class="btn" onclick="bonus(2)">+£2<br><small>10m</small></div>
+        <div class="btn" onclick="bonus(5)">+£5<br><small>30m</small></div>
+        <div class="btn" onclick="bonus(10)">+£10<br><small>1h</small></div>
+        <div class="btn" onclick="bonus(20)">+£20<br><small>2h</small></div>
+        <div class="btn" onclick="bonus(50)">+£50<br><small>6h</small></div>
+        <div class="btn" onclick="bonus(100)">+£100<br><small>12h</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAY -->
+  <div id="pay" class="screen">
+    <div class="glass card">
+      <strong>Pay</strong><br><br>
+      Send money (fake) to friends<br>
+      <div class="muted" style="margin-top:10px">coming next (leaderboard + public users)</div>
+    </div>
+  </div>
+
+  <!-- JOBS -->
+  <div id="jobs" class="screen">
+    <div class="glass card">
+      <strong>Jobs</strong><br><br>
+      <div id="jobsList"></div>
+      <div class="muted" style="margin-top:10px">pick a job then tap to earn + daily payouts</div>
+    </div>
+  </div>
+
+  <!-- ASSETS -->
+  <div id="assets" class="screen">
+    <div class="glass card">
+      <strong>Assets</strong><br><br>
+      <div id="assetsList"></div>
+    </div>
+  </div>
+
+  <!-- SOCIALS / LOVE -->
+  <div id="socials" class="screen">
+    <div class="glass card">
+      <strong>Socials</strong><br><br>
+      <button class="btn" style="width:100%" onclick="findLove()">Find Love</button>
+      <div id="loveResult" class="muted" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- ME -->
+  <div id="me" class="screen">
+    <div class="glass card">
+      <strong>Me</strong><br><br>
+      <div class="muted">Local save: ON</div>
+      <div style="margin-top:10px" id="meInfo"></div>
+      <button class="btn" style="width:100%;margin-top:12px" onclick="logout()">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div id="nav" class="nav hidden"></div>
+
+<!-- ADMIN MODAL -->
+<div id="adminModal" class="modal">
+  <div class="glass box">
+    <h3>Admin Panel</h3>
+    <div class="muted" style="margin-bottom:10px">admin: chowibz</div>
+
+    <div class="row">
+      <button class="good" onclick="addMoney(100)">Add £100</button>
+      <button class="danger" onclick="resetBalance()">Reset</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <input id="assetName" placeholder="Add asset (e.g. BMW M4)" />
+      <button onclick="addAsset()">Add</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <input id="jobName" placeholder="Add job (e.g. Uber Premium)" />
+      <button onclick="addJob()">Add</button>
+    </div>
+
+    <button style="margin-top:12px" onclick="toggleSocials()">Toggle Socials menu</button>
+    <button class="close" style="margin-top:12px" onclick="closeAdmin()">Close</button>
+  </div>
+</div>
+
+<script>
+/* ====== SAVE / LOAD ====== */
+const SKEY = "chowdolla_v3_save"
+
+const defaultSave = {
+  loggedIn:false,
+  email:"",
+  username:"User",
+  balance:0,
+  taps:0,
+  socialsEnabled:true,
+  assets:["🏠 Apartment","📱 Phone","🚗 Starter Car"],
+  jobs:[
+    {name:"Uber Driver", taps:500, payMin:6.00, payMax:12.00},
+    {name:"Warehouse Associate", taps:600, payMin:7.50, payMax:9.00},
+    {name:"Retail Assistant", taps:420, payMin:4.50, payMax:6.50},
+    {name:"Barista", taps:380, payMin:4.00, payMax:6.00},
+    {name:"Security Guard", taps:750, payMin:8.00, payMax:9.50},
+    {name:"Delivery Rider", taps:520, payMin:6.50, payMax:8.50},
+    {name:"Supervisor", taps:820, payMin:8.50, payMax:9.00},
+    {name:"Manager", taps:900, payMin:9.00, payMax:12.00}
+  ],
+  chosenJobIndex:0
+}
+
+function loadSave(){
+  try{
+    const raw = localStorage.getItem(SKEY)
+    if(!raw) return structuredClone(defaultSave)
+    const parsed = JSON.parse(raw)
+    return {...structuredClone(defaultSave), ...parsed}
+  }catch(e){
+    return structuredClone(defaultSave)
+  }
+}
+function saveNow(){ localStorage.setItem(SKEY, JSON.stringify(save)) }
+
+let save = loadSave()
+
+/* ====== UI refs ====== */
+const loginScreen = document.getElementById("loginScreen")
+const appRoot = document.getElementById("appRoot")
+const nav = document.getElementById("nav")
+const adminModal = document.getElementById("adminModal")
+
+/* ====== helpers ====== */
+function money(n){ return "£" + Number(n).toFixed(2) }
+function toast(msg){
+  // tiny iOS style alert without breaking taps
+  const t = document.createElement("div")
+  t.className="glass"
+  t.style.position="fixed"
+  t.style.left="50%"
+  t.style.bottom="120px"
+  t.style.transform="translateX(-50%)"
+  t.style.padding="12px 14px"
+  t.style.borderRadius="18px"
+  t.style.fontSize="13px"
+  t.style.zIndex="500"
+  t.style.maxWidth="86vw"
+  t.style.textAlign="center"
+  t.innerText = msg
+  document.body.appendChild(t)
+  setTimeout(()=>t.remove(), 1200)
+}
+
+/* ====== routing ====== */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"))
+  document.getElementById(id).classList.add("active")
+  document.querySelectorAll(".nav .item").forEach(i=>i.classList.remove("active"))
+  const btn = document.querySelector(`.nav .item[data-screen="${id}"]`)
+  if(btn) btn.classList.add("active")
+}
+
+function renderNav(){
+  nav.innerHTML = ""
+  const items = [
+    {id:"home", label:"Home"},
+    {id:"pay", label:"Pay"},
+    {id:"jobs", label:"Jobs"},
+    {id:"assets", label:"Assets"},
+    ...(save.socialsEnabled ? [{id:"socials", label:"Socials"}] : []),
+    {id:"me", label:"Me"}
+  ]
+  items.forEach((it,idx)=>{
+    const d = document.createElement("div")
+    d.className="item" + (idx===0 ? " active":"")
+    d.dataset.screen = it.id
+    d.textContent = it.label
+    d.onclick = ()=> showScreen(it.id)
+    nav.appendChild(d)
+  })
+}
+
+function renderAll(){
+  document.getElementById("balance").textContent = money(save.balance)
+  document.getElementById("usernameLine").textContent = "Signed in as " + save.username
+  document.getElementById("meInfo").innerHTML =
+    `<div>Balance: <strong>${money(save.balance)}</strong></div>
+     <div class="muted">Total taps: ${save.taps}</div>
+     <div class="muted">Selected job: ${save.jobs[save.chosenJobIndex]?.name || "None"}</div>`
+
+  // jobs list
+  const j = document.getElementById("jobsList")
+  j.innerHTML = ""
+  save.jobs.forEach((job, i)=>{
+    const row = document.createElement("div")
+    row.className="btn"
+    row.style.marginBottom="10px"
+    row.style.textAlign="left"
+    row.innerHTML =
+      `<strong>${job.name}</strong><br>
+       <small class="muted">${job.taps} taps entry • ${money(job.payMin)}–${money(job.payMax)} / day</small>`
+    row.onclick = ()=>{
+      save.chosenJobIndex = i
+      saveNow()
+      renderAll()
+      toast("Selected: " + job.name)
+    }
+    j.appendChild(row)
+  })
+
+  // assets list
+  const a = document.getElementById("assetsList")
+  a.innerHTML = ""
+  save.assets.forEach(x=>{
+    const row = document.createElement("div")
+    row.className="btn"
+    row.style.marginBottom="10px"
+    row.style.textAlign="left"
+    row.textContent = x
+    a.appendChild(row)
+  })
+
+  renderNav()
+}
+
+/* ====== game actions ====== */
+function tap(){
+  save.balance += 0.05
+  save.taps += 1
+  saveNow()
+  renderAll()
+}
+function bonus(v){
+  save.balance += v
+  saveNow()
+  renderAll()
+}
+function openAdmin(){ adminModal.style.display="flex" }
+function closeAdmin(){ adminModal.style.display="none" }
+
+function addMoney(v){
+  save.balance += v
+  saveNow()
+  renderAll()
+  toast("Added " + money(v))
+}
+function resetBalance(){
+  save.balance = 0
+  save.taps = 0
+  saveNow()
+  renderAll()
+  toast("Reset done")
+}
+function addAsset(){
+  const inp = document.getElementById("assetName")
+  const val = (inp.value||"").trim()
+  if(!val) return toast("type an asset name")
+  save.assets.unshift("✨ " + val)
+  inp.value=""
+  saveNow()
+  renderAll()
+  toast("Asset added")
+}
+function addJob(){
+  const inp = document.getElementById("jobName")
+  const val = (inp.value||"").trim()
+  if(!val) return toast("type a job name")
+  // simple realistic range like you said
+  const taps = Math.floor(400 + Math.random()*520) // 400-920
+  const payMin = +(4 + (taps/920)*5).toFixed(2)     // ~4-9
+  const payMax = +(payMin + (Math.random()*3)).toFixed(2) // +0-3
+  save.jobs.unshift({name:val, taps, payMin, payMax})
+  inp.value=""
+  saveNow()
+  renderAll()
+  toast("Job added")
+}
+function toggleSocials(){
+  save.socialsEnabled = !save.socialsEnabled
+  saveNow()
+  renderAll()
+  toast(save.socialsEnabled ? "Socials ON" : "Socials OFF")
+  if(!save.socialsEnabled) showScreen("home")
+}
+
+/* ====== love sim ====== */
+function findLove(){
+  const names = ["Aisha","Zara","Hana","Maya","Sophia","Layla","Amira","Noor","Sara","Imaan"]
+  const pick = names[Math.floor(Math.random()*names.length)]
+  const looks = Math.floor(40 + Math.random()*61)
+  const personality = Math.floor(35 + Math.random()*66)
+  const loyalty = Math.floor(30 + Math.random()*71)
+  const vibes = Math.floor(45 + Math.random()*56)
+
+  document.getElementById("loveResult").innerHTML =
+    `<div><strong>${pick}</strong> appeared</div>
+     <div class="muted">Looks: ${looks}/100 • Personality: ${personality}/100</div>
+     <div class="muted">Loyalty: ${loyalty}/100 • Vibes: ${vibes}/100</div>
+     <div style="margin-top:8px" class="muted">tap + to add more socials later</div>`
+}
+
+/* ====== auth ====== */
+function login(){
+  const email = document.getElementById("email").value.trim() || "user@chowdolla.com"
+  const username = email.split("@")[0].slice(0,14) || "User"
+  save.loggedIn = true
+  save.email = email
+  save.username = username
+  saveNow()
+  boot()
+}
+function logout(){
+  save.loggedIn = false
+  saveNow()
+  location.reload()
+}
+
+/* ====== boot ====== */
+function boot(){
+  if(save.loggedIn){
+    loginScreen.classList.add("hidden")
+    appRoot.classList.remove("hidden")
+    nav.classList.remove("hidden")
+    renderAll()
+    showScreen("home")
+  }else{
+    loginScreen.classList.remove("hidden")
+    appRoot.classList.add("hidden")
+    nav.classList.add("hidden")
+  }
+}
+boot()
+
+/* prevent double tap zoom weirdness */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+  const now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) event.preventDefault();
+  lastTouchEnd = now;
+}, {passive:false});
+</script>
+
+</body>
+</html>
