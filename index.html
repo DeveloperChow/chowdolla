@@ -2,209 +2,132 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ChowDolla</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0d12">
+
+<!-- iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <style>
-:root{
-  --glass: rgba(255,255,255,0.08);
-  --blur: blur(22px);
-  --border: rgba(255,255,255,0.18);
-  --text: #eaeaea;
-  --muted: #b9b9b9;
-  --accent: #5da9ff;
-}
-
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,system-ui}
-
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont}
 body{
-  min-height:100vh;
-  background:
-    radial-gradient(1200px 800px at 20% 10%, #1e2a44, #05060a),
-    radial-gradient(800px 600px at 80% 90%, #2b1f3a, transparent);
-  color:var(--text);
-}
-
-.screen{
-  position:fixed;
-  inset:0;
-  display:none;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right)
-          env(safe-area-inset-bottom) env(safe-area-inset-left);
-}
-
-.screen.active{display:flex}
-
-.glass{
-  background:var(--glass);
-  backdrop-filter:var(--blur);
-  -webkit-backdrop-filter:var(--blur);
-  border:1px solid var(--border);
-  border-radius:28px;
-}
-
-.center{
-  margin:auto;
-  width:92%;
-  max-width:420px;
-  padding:26px;
-}
-
-h1{font-size:22px;margin-bottom:18px}
-
-input{
-  width:100%;
-  background:transparent;
-  border:none;
-  border-bottom:1px solid var(--border);
-  color:white;
-  padding:14px 0;
-  margin-bottom:18px;
-  outline:none;
-}
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:16px;
-  background:linear-gradient(135deg,#3b7cff,#6fb1ff);
-  color:white;
-  font-size:16px;
+margin:0;
+min-height:100vh;
+background:
+radial-gradient(circle at bottom,#2a2238,#0b0d12 70%);
+color:#fff;
 }
 
 .app{
-  flex-direction:column;
+padding:20px;
+padding-bottom:90px;
 }
 
-.header{
-  padding:18px;
+.glass{
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:16px;
+margin-bottom:16px;
 }
 
 .balance{
-  font-size:42px;
-  font-weight:700;
-  margin:10px 0 18px;
+font-size:42px;
+font-weight:700;
 }
 
 .tap{
-  padding:18px;
-  font-size:18px;
-  margin-bottom:18px;
+width:100%;
+padding:18px;
+border-radius:16px;
+border:none;
+background:rgba(255,255,255,.18);
+color:#fff;
+font-size:20px;
 }
 
 .grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px;
 }
 
-.card{
-  padding:14px;
-  text-align:center;
-  font-size:15px;
-}
-
-.card span{
-  display:block;
-  font-size:12px;
-  color:var(--muted);
+.btn{
+padding:14px;
+border-radius:14px;
+background:rgba(255,255,255,.12);
+text-align:center;
+font-size:14px;
 }
 
 .nav{
-  position:fixed;
-  bottom:env(safe-area-inset-bottom);
-  left:0;
-  right:0;
-  padding:10px 14px;
+position:fixed;
+bottom:10px;
+left:10px;
+right:10px;
+display:flex;
+gap:10px;
+background:rgba(255,255,255,.1);
+backdrop-filter:blur(20px);
+border-radius:20px;
+padding:10px;
 }
 
-.nav-inner{
-  display:flex;
-  justify-content:space-around;
-  padding:14px;
-}
+.nav div{flex:1;text-align:center;font-size:13px}
 
-.nav button{
-  background:none;
-  border:none;
-  color:var(--muted);
-  font-size:14px;
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
 }
 
 .plus{
-  position:fixed;
-  right:20px;
-  bottom:90px;
-  width:54px;
-  height:54px;
-  border-radius:50%;
-  font-size:30px;
-  background:linear-gradient(135deg,#6fb1ff,#3b7cff);
+font-size:26px;
 }
 </style>
 </head>
 
 <body>
+<div class="app">
 
-<!-- LOGIN -->
-<div id="login" class="screen active">
-  <div class="glass center">
-    <h1>ChowDolla</h1>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login / Signup</button>
-  </div>
+<div class="top">
+<div>ChowDolla<br><small>FAKE MONEY GAME</small></div>
+<div class="plus">＋</div>
 </div>
 
-<!-- APP -->
-<div id="app" class="screen app">
-  <div class="header">
-    <h1>ChowDolla</h1>
-    <div class="balance" id="balance">£0.00</div>
-    <button class="tap glass" onclick="add(0.05)">TAP +£0.05</button>
-    <div class="grid">
-      <div class="glass card" onclick="reward(2)">+£2<span>10m</span></div>
-      <div class="glass card" onclick="reward(5)">+£5<span>30m</span></div>
-      <div class="glass card" onclick="reward(10)">+£10<span>1h</span></div>
-      <div class="glass card" onclick="reward(20)">+£20<span>2h</span></div>
-      <div class="glass card" onclick="reward(50)">+£50<span>6h</span></div>
-      <div class="glass card" onclick="reward(100)">+£100<span>12h</span></div>
-    </div>
-  </div>
-
-  <button class="plus" onclick="add(1000)">+</button>
-
-  <div class="nav">
-    <div class="glass nav-inner">
-      <button>Home</button>
-      <button>Pay</button>
-      <button>Jobs</button>
-      <button>Assets</button>
-      <button>Me</button>
-    </div>
-  </div>
+<div class="glass">
+<div>Balance</div>
+<div class="balance">£7,187.50</div>
 </div>
 
-<script>
-let bal = Number(localStorage.getItem("bal")||0)
+<button class="tap">TAP +£0.05</button>
 
-function update(){
-  document.getElementById("balance").innerText="£"+bal.toFixed(2)
-  localStorage.setItem("bal",bal)
-}
+<div class="glass">
+<div class="grid">
+<div class="btn">+£2<br><small>10m</small></div>
+<div class="btn">+£5<br><small>30m</small></div>
+<div class="btn">+£10<br><small>1h</small></div>
+<div class="btn">+£20<br><small>2h</small></div>
+<div class="btn">+£50<br><small>6h</small></div>
+<div class="btn">+£100<br><small>12h</small></div>
+</div>
+</div>
 
-function add(x){ bal+=x; update() }
+</div>
 
-function reward(x){ bal+=x; update() }
-
-function login(){
-  localStorage.setItem("user",email.value||"guest")
-  document.getElementById("login").classList.remove("active")
-  document.getElementById("app").classList.add("active")
-  update()
-}
-</script>
+<div class="nav">
+<div>Home</div>
+<div>Pay</div>
+<div>Jobs</div>
+<div>Assets</div>
+<div>Me</div>
+</div>
 
 </body>
 </html>
